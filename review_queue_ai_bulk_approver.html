@@ -1,0 +1,551 @@
+
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--font-sans,system-ui,sans-serif);background:transparent}
+.wrap{padding:1rem 0}
+.top-strip{display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;flex-wrap:wrap;gap:8px}
+.page-title{font-size:15px;font-weight:500;color:var(--color-text-primary)}
+.stats-row{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-bottom:1rem}
+.stat{background:var(--color-background-secondary);border-radius:var(--border-radius-md);padding:10px;text-align:center}
+.stat-n{font-size:20px;font-weight:500;line-height:1;margin-bottom:3px;color:var(--color-text-primary)}
+.stat-l{font-size:10px;color:var(--color-text-secondary);text-transform:uppercase;letter-spacing:.5px}
+.card{background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);padding:1rem 1.25rem;margin-bottom:10px}
+.card-title{font-size:13px;font-weight:500;color:var(--color-text-primary);margin-bottom:8px}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px}
+label{font-size:10px;color:var(--color-text-secondary);text-transform:uppercase;letter-spacing:.5px;font-weight:500;display:block;margin-bottom:4px}
+input[type=password],input[type=text],select{width:100%;padding:7px 10px;background:var(--color-background-secondary);border:0.5px solid var(--color-border-secondary);border-radius:var(--border-radius-md);color:var(--color-text-primary);font-size:12px;outline:none}
+input:focus,select:focus{border-color:var(--color-border-info)}
+.btn-row{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
+button{padding:6px 14px;border-radius:var(--border-radius-md);font-size:12px;font-weight:500;cursor:pointer;border:0.5px solid var(--color-border-secondary);background:transparent;color:var(--color-text-primary);transition:all .15s;display:inline-flex;align-items:center;gap:5px}
+button:hover{background:var(--color-background-secondary)}
+button:disabled{opacity:.35;cursor:not-allowed}
+.btn-p{background:#3b82f6;border-color:#3b82f6;color:#fff}
+.btn-p:hover{opacity:.9}
+.btn-g{border-color:rgba(34,197,94,.4);color:#22c55e}.btn-g:hover{background:rgba(34,197,94,.07)}
+.btn-r{border-color:rgba(239,68,68,.4);color:#ef4444}.btn-r:hover{background:rgba(239,68,68,.07)}
+.btn-a{border-color:rgba(245,158,11,.4);color:#f59e0b}.btn-a:hover{background:rgba(245,158,11,.07)}
+.prog-wrap{background:var(--color-background-secondary);border-radius:99px;height:5px;overflow:hidden;margin:6px 0}
+.prog-bar{height:100%;border-radius:99px;background:#3b82f6;transition:width .3s}
+.log-box{background:var(--color-background-secondary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-md);padding:8px;max-height:180px;overflow-y:auto;font-size:11px;font-family:var(--font-mono,monospace);line-height:1.65}
+.lok{color:#22c55e}.lerr{color:#ef4444}.lwarn{color:#f59e0b}.linfo{color:var(--color-text-secondary)}
+.q-list{display:flex;flex-direction:column;gap:8px;max-height:520px;overflow-y:auto}
+.q-card{border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-md);padding:10px 12px;background:var(--color-background-primary);transition:border-color .2s}
+.q-card.verdict-pass{border-color:rgba(34,197,94,.4);background:rgba(34,197,94,.02)}
+.q-card.verdict-fail{border-color:rgba(239,68,68,.35);background:rgba(239,68,68,.02)}
+.q-card.verdict-warn{border-color:rgba(245,158,11,.4);background:rgba(245,158,11,.02)}
+.q-card.verdict-pending{border-color:var(--color-border-secondary)}
+.q-head{display:flex;align-items:flex-start;gap:8px;margin-bottom:6px}
+.q-idx{font-size:10px;color:var(--color-text-secondary);min-width:22px;padding-top:1px}
+.q-stem{font-size:12px;color:var(--color-text-primary);line-height:1.5;flex:1}
+.q-opts{display:grid;grid-template-columns:1fr 1fr;gap:2px;margin:5px 0}
+.q-opt{font-size:11px;color:var(--color-text-secondary);padding:2px 5px;border-radius:4px}
+.q-opt.orig{background:rgba(59,130,246,.1);color:#3b82f6;font-weight:500}
+.q-opt.ai{background:rgba(34,197,94,.1);color:#22c55e;font-weight:500}
+.q-opt.conflict{background:rgba(239,68,68,.1);color:#ef4444;font-weight:500}
+.q-meta{display:flex;gap:4px;flex-wrap:wrap;margin-top:5px}
+.bdg{display:inline-flex;align-items:center;padding:2px 6px;border-radius:4px;font-size:10px;font-weight:500}
+.bdg-p{background:rgba(34,197,94,.1);color:#22c55e}
+.bdg-f{background:rgba(239,68,68,.1);color:#ef4444}
+.bdg-w{background:rgba(245,158,11,.1);color:#f59e0b}
+.bdg-n{background:var(--color-background-secondary);color:var(--color-text-secondary)}
+.bdg-s{background:rgba(59,130,246,.1);color:#3b82f6}
+.ai-verdict{font-size:11px;margin-top:6px;padding:6px 8px;border-radius:var(--border-radius-md);border:0.5px solid var(--color-border-tertiary);line-height:1.5}
+.ai-verdict.pass{border-color:rgba(34,197,94,.3);background:rgba(34,197,94,.04)}
+.ai-verdict.fail{border-color:rgba(239,68,68,.3);background:rgba(239,68,68,.04)}
+.ai-verdict.warn{border-color:rgba(245,158,11,.3);background:rgba(245,158,11,.04)}
+.doubt-row{font-size:10px;color:var(--color-text-secondary);margin-top:4px;line-height:1.5}
+.act-row{display:flex;gap:5px;margin-top:7px;align-items:center;flex-wrap:wrap}
+.expl-box{font-size:11px;color:var(--color-text-secondary);border-top:0.5px solid var(--color-border-tertiary);margin-top:6px;padding-top:5px;line-height:1.5;max-height:80px;overflow:hidden;transition:max-height .3s}
+.expl-box.open{max-height:400px}
+.toggle-expl{font-size:10px;color:var(--color-text-secondary);cursor:pointer;text-decoration:underline;background:none;border:none;padding:2px 0;margin-top:3px}
+.spin{display:inline-block;width:12px;height:12px;border:1.5px solid var(--color-border-secondary);border-top-color:#3b82f6;border-radius:50%;animation:spin .6s linear infinite;vertical-align:middle;margin-right:4px}
+@keyframes spin{to{transform:rotate(360deg)}}
+.mode-pills{display:flex;gap:4px}
+.mode-pill{padding:4px 10px;border-radius:99px;font-size:11px;cursor:pointer;border:0.5px solid var(--color-border-secondary);color:var(--color-text-secondary);background:transparent}
+.mode-pill.active{border-color:#3b82f6;background:rgba(59,130,246,.1);color:#3b82f6}
+.empty{text-align:center;padding:2rem;color:var(--color-text-secondary);font-size:13px}
+.diff-bar{display:flex;gap:2px;height:4px;border-radius:2px;overflow:hidden;margin:4px 0}
+.dot-live{width:7px;height:7px;border-radius:50%;background:#22c55e;display:inline-block;animation:pulse 1.4s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+.ai-key-change{font-size:11px;color:#f59e0b;margin-top:4px;font-weight:500}
+</style>
+
+<div class="wrap">
+<h2 class="sr-only">AI-assisted bulk review queue processor — promote flagged questions into the question bank</h2>
+
+<div class="top-strip">
+  <div class="page-title">AI Bulk Review — Review Queue → Question Bank</div>
+  <div class="mode-pills">
+    <div class="mode-pill active" id="mp-auto" onclick="setMode('auto',this)">AI decides</div>
+    <div class="mode-pill" id="mp-assisted" onclick="setMode('assisted',this)">AI + you confirm</div>
+    <div class="mode-pill" id="mp-manual" onclick="setMode('manual',this)">Manual only</div>
+  </div>
+</div>
+
+<div class="stats-row">
+  <div class="stat"><div class="stat-n" id="st-total">0</div><div class="stat-l">In queue</div></div>
+  <div class="stat"><div class="stat-n" id="st-pass" style="color:#22c55e">0</div><div class="stat-l">AI approved</div></div>
+  <div class="stat"><div class="stat-n" id="st-reject" style="color:#ef4444">0</div><div class="stat-l">AI rejected</div></div>
+  <div class="stat"><div class="stat-n" id="st-warn" style="color:#f59e0b">0</div><div class="stat-l">Key changed</div></div>
+  <div class="stat"><div class="stat-n" id="st-committed" style="color:#3b82f6">0</div><div class="stat-l">Saved to bank</div></div>
+</div>
+
+<!-- Connection -->
+<div class="card" id="auth-card">
+  <div class="card-title">Connection</div>
+  <div class="row2">
+    <div>
+      <label>Supabase URL</label>
+      <input type="text" id="sb-url" value="https://vikgpdkxpmxclsepgclk.supabase.co">
+    </div>
+    <div>
+      <label>Service role key (for bank inserts)</label>
+      <input type="password" id="sb-key" placeholder="eyJh… (service_role key from Supabase project settings)">
+    </div>
+  </div>
+  <div>
+    <label>Netlify proxy origin (for AI verifier calls)</label>
+    <input type="text" id="proxy-origin" placeholder="https://www.rankgate.in">
+  </div>
+  <div>
+    <label style="margin-top:8px">Supabase access token (for proxy auth)</label>
+    <input type="password" id="proxy-token" placeholder="Paste access_token from browser DevTools → Local Storage → sb-…-auth-token">
+  </div>
+  <div class="btn-row">
+    <button class="btn-p" onclick="loadQueue()">Load Review Queue</button>
+  </div>
+</div>
+
+<!-- Controls -->
+<div class="card" id="ctrl-card" style="display:none">
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;flex-wrap:wrap;gap:8px">
+    <div class="card-title" style="margin:0">
+      <span id="status-dot" style="display:inline-block" class="dot-live" hidden></span>
+      <span id="status-txt">Ready — <span id="q-count">0</span> items loaded</span>
+    </div>
+    <div style="font-size:11px;color:var(--color-text-secondary)" id="prog-lbl">0 / 0</div>
+  </div>
+  <div class="prog-wrap"><div class="prog-bar" id="prog-bar" style="width:0%"></div></div>
+
+  <div class="btn-row">
+    <button class="btn-p" id="btn-run" onclick="runAI()">Run AI verification on all</button>
+    <button id="btn-stop" onclick="stopRun()" disabled>Stop</button>
+    <button onclick="commitAll()" id="btn-commit" disabled>Save approved to bank</button>
+    <button onclick="reloadQueue()" class="btn-a">Reload queue</button>
+  </div>
+  <div style="margin-top:8px;font-size:11px;color:var(--color-text-secondary)" id="mode-hint">
+    Mode: <strong>AI decides</strong> — AI re-solves each question independently. High-confidence correct = auto-approve. Conflicting answer key = flag for your review. Wrong = reject.
+  </div>
+  <div class="prog-wrap" style="margin-top:6px"><div class="prog-bar" id="prog-bar2" style="width:0%;background:#22c55e"></div></div>
+  <div class="log-box" id="log-box"></div>
+</div>
+
+<!-- Question list -->
+<div id="q-section" style="display:none">
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+    <div style="font-size:12px;font-weight:500;color:var(--color-text-primary)">Questions</div>
+    <div style="display:flex;gap:4px">
+      <select id="filter-verdict" onchange="renderList()" style="font-size:11px;padding:3px 8px">
+        <option value="">All</option>
+        <option value="pass">AI pass</option>
+        <option value="fail">AI reject</option>
+        <option value="warn">Key changed</option>
+        <option value="pending">Pending</option>
+      </select>
+    </div>
+  </div>
+  <div class="q-list" id="q-list"></div>
+</div>
+</div>
+
+<script>
+const SUPA_URL_DEFAULT = 'https://vikgpdkxpmxclsepgclk.supabase.co';
+let QUEUE = [];
+let running = false;
+let stopFlag = false;
+let mode = 'auto';
+let stats = {total:0,pass:0,reject:0,warn:0,committed:0};
+
+function setMode(m, el){
+  mode = m;
+  document.querySelectorAll('.mode-pill').forEach(p=>p.classList.remove('active'));
+  el.classList.add('active');
+  const hints = {
+    auto:'Mode: AI decides — AI re-solves each question independently. High-confidence correct = auto-approve. Conflicting answer key = flag for your review. Wrong = reject.',
+    assisted:'Mode: AI + you confirm — AI analyses and recommends, but you click Approve / Reject for each card. No automatic commits.',
+    manual:'Mode: Manual only — no AI calls. Review each question yourself and approve/reject manually.'
+  };
+  document.getElementById('mode-hint').innerHTML = 'Mode: <strong>' + el.textContent + '</strong> — ' + hints[m].split('—').slice(1).join('—');
+}
+
+function getSB(){ return document.getElementById('sb-url').value.trim() || SUPA_URL_DEFAULT; }
+function getSBKey(){ return document.getElementById('sb-key').value.trim(); }
+function getOrigin(){ return (document.getElementById('proxy-origin').value.trim() || window.location.origin).replace(/\/$/,''); }
+function getToken(){ return document.getElementById('proxy-token').value.trim(); }
+
+function normalizeCI(raw){
+  if(typeof raw==='number'){const t=Math.trunc(raw);if(t>=0&&t<=3)return t;if(t>=1&&t<=4)return t-1;}
+  const s=String(raw||'').trim().toUpperCase();
+  if(s.length===1&&s>='A'&&s<='D') return s.charCodeAt(0)-65;
+  const p=parseInt(s,10);if(!isNaN(p)){if(p>=0&&p<=3)return p;if(p>=1&&p<=4)return p-1;}
+  return 0;
+}
+function esc(s){return String(s||'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+function sleep(ms){return new Promise(r=>setTimeout(r,ms));}
+function log(msg,type='info'){
+  const box=document.getElementById('log-box');
+  const d=document.createElement('div');
+  d.className='l'+type;
+  const ts=new Date().toLocaleTimeString('en-IN',{hour12:false});
+  d.textContent='['+ts+'] '+msg;
+  box.appendChild(d);
+  box.scrollTop=box.scrollHeight;
+}
+function setProgress(done,total,bar='prog-bar'){
+  const pct=total?Math.round(done/total*100):0;
+  document.getElementById(bar).style.width=pct+'%';
+  document.getElementById('prog-lbl').textContent=done+' / '+total;
+}
+function updateStats(){
+  document.getElementById('st-total').textContent=stats.total;
+  document.getElementById('st-pass').textContent=stats.pass;
+  document.getElementById('st-reject').textContent=stats.reject;
+  document.getElementById('st-warn').textContent=stats.warn;
+  document.getElementById('st-committed').textContent=stats.committed;
+}
+function strHash32(str){let h=5381>>>0;for(let i=0;i<str.length;i++)h=((h<<5)+h+str.charCodeAt(i))>>>0;return String(h>>>0);}
+function qFP(q){return strHash32(String(q.subject||'')+'|'+String(q.topic||'')+'|'+String(q.question||'')+'|'+(q.options||[]).join('|'));}
+
+async function sbFetch(path, method='GET', body=null){
+  const url=getSB().replace(/\/$/,'')+path;
+  const key=getSBKey();
+  if(!key) throw new Error('No Supabase service_role key — paste it in the Connection field');
+  const opts={method,headers:{apikey:key,Authorization:'Bearer '+key,'Content-Type':'application/json'}};
+  if(body) opts.body=JSON.stringify(body);
+  const r=await fetch(url,opts);
+  const txt=await r.text();
+  if(!r.ok) throw new Error('Supabase '+r.status+': '+txt.slice(0,200));
+  return txt?JSON.parse(txt):null;
+}
+
+async function loadQueue(){
+  log('Loading review queue from Supabase…');
+  document.getElementById('btn-run').disabled=true;
+  try{
+    const data=await sbFetch('/rest/v1/question_review_queue?select=*&status=eq.pending&order=created_at.desc&limit=200');
+    QUEUE=(data||[]).map(r=>({...r,_verdict:null,_ai_correct:null,_ai_reason:'',_committed:false}));
+    stats.total=QUEUE.length;
+    stats.pass=0;stats.reject=0;stats.warn=0;stats.committed=0;
+    updateStats();
+    setProgress(0,QUEUE.length);
+    document.getElementById('q-count').textContent=QUEUE.length;
+    document.getElementById('ctrl-card').style.display='block';
+    document.getElementById('q-section').style.display='block';
+    document.getElementById('btn-run').disabled=false;
+    log('Loaded '+QUEUE.length+' pending items','ok');
+    renderList();
+  }catch(e){
+    log('Load failed: '+String(e?.message||'').slice(0,120),'err');
+  }
+}
+async function reloadQueue(){ QUEUE=[]; await loadQueue(); }
+
+async function callProxy(prompt, maxTokens=300, temperature=0){
+  const token=getToken();
+  if(!token) throw new Error('No proxy token');
+  const origin=getOrigin();
+  const url=origin+'/.netlify/functions/generate-question';
+  const body={model:'claude-haiku-4-5-20251001',max_tokens:maxTokens,temperature,messages:[{role:'user',content:prompt}]};
+  const ctrl=new AbortController();
+  const to=setTimeout(()=>ctrl.abort(),55000);
+  let resp;
+  try{
+    resp=await fetch(url,{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+token},body:JSON.stringify({body}),signal:ctrl.signal});
+  }catch(e){
+    clearTimeout(to);
+    if(String(e?.name||'')==='AbortError') throw new Error('Proxy timeout');
+    throw new Error('Cannot reach proxy: '+String(e?.message||'').slice(0,60));
+  }
+  clearTimeout(to);
+  const txt=await resp.text();
+  if(!resp.ok) throw new Error('Proxy '+resp.status+': '+txt.slice(0,100));
+  const d=JSON.parse(txt);
+  return String(d?.content?.[0]?.text||'').trim();
+}
+
+function makeVerifyPrompt(q){
+  const ci=normalizeCI(q.correct);
+  const opts=(q.options||[]).slice(0,4);
+  const sub=String(q.subject||'');
+  return `You are a strict exam answer-key verifier for ${sub}.
+Independently solve this question from scratch. Recompute any calculations.
+
+Question: ${q.question}
+
+Options (0-indexed):
+0) ${opts[0]||''}
+1) ${opts[1]||''}
+2) ${opts[2]||''}
+3) ${opts[3]||''}
+
+Current keyed answer: index ${ci} = "${opts[ci]||''}"
+Current explanation: ${(q.explanation||'').slice(0,400)}
+
+Rules:
+- Solve independently. Do NOT trust the keyed answer blindly.
+- For numeric questions (Physics/Chemistry/Math): recompute step by step.
+- Return verdict "PASS" only if the keyed answer is definitively correct.
+- Return "FAIL" only if you are highly confident the keyed answer is wrong.
+- Return "UNCERTAIN" if you cannot determine with confidence.
+- If the keyed answer is wrong, provide the correct index.
+- Never return FAIL for low-confidence disagreements — use UNCERTAIN instead.
+
+Return ONLY this JSON (no other text):
+{"verdict":"PASS","correct_index":${ci},"confidence":"high","reason":"one line justification"}`;
+}
+
+async function verifyOneQuestion(item){
+  const p=item.payload||{};
+  const q={...p,subject:item.subject||p.subject,topic:item.topic||p.topic,difficulty:item.difficulty||p.difficulty};
+
+  if(mode==='manual'){
+    item._verdict='pending';
+    item._ai_reason='Manual mode — no AI call';
+    return;
+  }
+
+  try{
+    const raw=await callProxy(makeVerifyPrompt(q),320,0);
+    const clean=raw.replace(/```json|```/g,'').trim();
+    const a=clean.indexOf('{'),b=clean.lastIndexOf('}');
+    if(a<0||b<0) throw new Error('No JSON in response');
+    const r=JSON.parse(clean.slice(a,b+1));
+    const verdict=String(r.verdict||'UNCERTAIN').toUpperCase();
+    const conf=String(r.confidence||'medium').toLowerCase();
+    const aiIdx=normalizeCI(r.correct_index);
+    const origIdx=normalizeCI(q.correct);
+    const reason=String(r.reason||'').slice(0,200);
+
+    item._ai_reason=reason;
+    item._ai_confidence=conf;
+    item._ai_correct=aiIdx;
+
+    if(verdict==='PASS' && conf==='high'){
+      item._verdict='pass';
+    }else if(verdict==='FAIL' && conf==='high'){
+      item._verdict='fail';
+      item._ai_reason='AI rejected: '+reason;
+    }else if(verdict==='PASS' && aiIdx!==origIdx){
+      // AI says pass but suggested different index — flag for review
+      item._verdict='warn';
+      item._ai_reason='AI pass but key differs (orig='+origIdx+', ai='+aiIdx+'): '+reason;
+    }else if(verdict==='UNCERTAIN' || conf!=='high'){
+      // Not confident — approve with warning (don't block on uncertainty)
+      item._verdict='warn';
+      item._ai_reason='AI uncertain ('+conf+'): '+reason+' — recommend manual check';
+    }else{
+      item._verdict='pass';
+    }
+  }catch(e){
+    // Proxy unavailable or parse error — don't reject, mark for manual
+    item._verdict='warn';
+    item._ai_reason='Verifier unavailable: '+String(e?.message||'').slice(0,80)+' — please review manually';
+  }
+}
+
+async function runAI(){
+  if(!QUEUE.length){log('Queue empty — load first','warn');return;}
+  if(mode==='manual'){log('Manual mode — click Approve/Reject on each card directly','warn');return;}
+  running=true;stopFlag=false;
+  document.getElementById('btn-run').disabled=true;
+  document.getElementById('btn-stop').disabled=false;
+  document.getElementById('btn-commit').disabled=true;
+  document.getElementById('status-dot').hidden=false;
+  document.getElementById('status-txt').textContent='Running AI verification…';
+  log('Starting AI verification of '+QUEUE.length+' items (mode: '+mode+')');
+
+  let done=0;
+  stats.pass=0;stats.reject=0;stats.warn=0;
+  setProgress(0,QUEUE.length);
+
+  for(let i=0;i<QUEUE.length;i++){
+    if(stopFlag){log('Stopped.','warn');break;}
+    const item=QUEUE[i];
+    const p=item.payload||{};
+    const label=(p.question||'').slice(0,50)+'…';
+    log('['+( i+1)+'/'+QUEUE.length+'] '+esc(item.subject||'?')+' · '+esc(label));
+    await verifyOneQuestion(item);
+    if(item._verdict==='pass') stats.pass++;
+    else if(item._verdict==='fail') stats.reject++;
+    else if(item._verdict==='warn') stats.warn++;
+    log('  → '+item._verdict+' | '+item._ai_reason, item._verdict==='pass'?'ok':item._verdict==='fail'?'err':'warn');
+    done++;
+    setProgress(done,QUEUE.length);
+    document.getElementById('prog-bar2').style.width=Math.round(stats.pass/(QUEUE.length)*100)+'%';
+    updateStats();
+    renderList();
+    await sleep(600);
+  }
+
+  running=false;
+  document.getElementById('btn-run').disabled=false;
+  document.getElementById('btn-stop').disabled=true;
+  document.getElementById('btn-commit').disabled=false;
+  document.getElementById('status-dot').hidden=true;
+  document.getElementById('status-txt').textContent='Done — '+stats.pass+' approved, '+stats.reject+' rejected, '+stats.warn+' need review';
+  log('Verification complete. '+stats.pass+' pass · '+stats.reject+' fail · '+stats.warn+' warn','ok');
+
+  // In auto mode, commit all passes immediately
+  if(mode==='auto'){
+    log('Auto mode: committing all AI-approved questions to bank…');
+    await commitAll(true);
+  }
+}
+
+function stopRun(){stopFlag=true;}
+
+async function commitAll(onlyPass=false){
+  const toCommit=QUEUE.filter(item=>{
+    if(item._committed) return false;
+    if(onlyPass) return item._verdict==='pass';
+    return item._verdict==='pass'||item._verdict==='warn';
+  });
+  if(!toCommit.length){log('Nothing to commit','warn');return;}
+  log('Committing '+toCommit.length+' items to question_bank…');
+  let ok=0,fail=0;
+  for(const item of toCommit){
+    if(stopFlag) break;
+    try{
+      await commitOne(item);
+      item._committed=true;
+      stats.committed++;
+      ok++;
+    }catch(e){
+      fail++;
+      log('Commit failed for '+item.id+': '+String(e?.message||'').slice(0,80),'err');
+    }
+    updateStats();
+    renderList();
+    await sleep(200);
+  }
+  log('Committed '+ok+' questions to bank'+(fail?' ('+fail+' failed)':''),'ok');
+}
+
+async function commitOne(item){
+  const sbKey=getSBKey();
+  if(!sbKey) throw new Error('No service_role key');
+  const p=item.payload||{};
+  // If AI found a different correct answer and it's high confidence, use AI's answer
+  const origCI=normalizeCI(p.correct);
+  const aiCI=item._ai_correct;
+  const useAI=aiCI!==null && aiCI!==origCI && item._verdict==='warn' && item._ai_confidence==='high';
+  const finalCI=useAI?aiCI:origCI;
+
+  const row={
+    id:qFP({...p,correct:finalCI}),
+    exam:String(item.exam||p.exam||'BITSAT'),
+    subject:String(item.subject||p.subject||'').trim()||null,
+    topic:String(item.topic||p.topic||'').trim()||null,
+    difficulty:String(item.difficulty||p.difficulty||'medium').toLowerCase(),
+    question:String(p.question||'').trim(),
+    options:(p.options||[]).slice(0,4).map(x=>String(x||'').trim()),
+    correct:finalCI,
+    explanation:String(p.explanation||'').trim(),
+    diagram:p.diagram||null,
+    created_by:null
+  };
+
+  // Upsert to question_bank
+  await sbFetch('/rest/v1/question_bank',
+    'POST',
+    [row]
+  );
+
+  // Mark as approved in review queue
+  await sbFetch('/rest/v1/question_review_queue?id=eq.'+encodeURIComponent(item.id),'PATCH',{
+    status:'approved',
+    decided_at:new Date().toISOString()
+  });
+}
+
+async function manualDecide(idx, decision){
+  const item=QUEUE[idx];
+  if(!item) return;
+  if(decision==='approve'){
+    item._verdict='pass';
+    stats.pass++;
+    if(mode==='manual'||mode==='assisted'){
+      try{
+        await commitOne(item);
+        item._committed=true;
+        stats.committed++;
+        log('Approved & saved: '+String(item.payload?.question||'').slice(0,50),'ok');
+      }catch(e){log('Save failed: '+String(e?.message||'').slice(0,80),'err');}
+    }
+  }else{
+    item._verdict='fail';
+    stats.reject++;
+    try{
+      await sbFetch('/rest/v1/question_review_queue?id=eq.'+encodeURIComponent(item.id),'PATCH',{
+        status:'rejected',decided_at:new Date().toISOString()
+      });
+      log('Rejected: '+String(item.payload?.question||'').slice(0,50),'warn');
+    }catch(e){log('Reject save failed: '+String(e?.message||'').slice(0,60),'err');}
+  }
+  updateStats();
+  renderList();
+}
+
+function toggleExpl(idx){
+  const box=document.getElementById('expl-'+idx);
+  if(!box) return;
+  box.classList.toggle('open');
+}
+
+function renderList(){
+  const filterV=document.getElementById('filter-verdict')?.value||'';
+  const items=QUEUE.filter(item=>!filterV||item._verdict===filterV||(!item._verdict&&filterV==='pending'));
+  const list=document.getElementById('q-list');
+  if(!items.length){list.innerHTML='<div class="empty">No items match the filter</div>';return;}
+
+  list.innerHTML=items.map((item,i)=>{
+    const realIdx=QUEUE.indexOf(item);
+    const p=item.payload||{};
+    const origCI=normalizeCI(p.correct);
+    const aiCI=item._ai_correct;
+    const opts=(p.options||[]).slice(0,4);
+    const v=item._verdict||'pending';
+    const keyChanged=aiCI!==null&&aiCI!==origCI;
+
+    const optHtml=opts.map((o,oi)=>{
+      let cls='';
+      if(oi===origCI&&!keyChanged) cls='orig';
+      else if(oi===origCI&&keyChanged) cls='conflict';
+      else if(oi===aiCI&&keyChanged) cls='ai';
+      return '<div class="q-opt '+cls+'">'+String.fromCharCode(65+oi)+'. '+esc(String(o||'').slice(0,80))+'</div>';
+    }).join('');
+
+    const badge={pass:'<span class="bdg bdg-p">AI PASS</span>',fail:'<span class="bdg bdg-f">AI REJECT</span>',warn:'<span class="bdg bdg-w">NEEDS REVIEW</span>',pending:'<span class="bdg bdg-n">Pending</span>'}[v]||'<span class="bdg bdg-n">—</span>';
+    const committed=item._committed?'<span class="bdg bdg-s">Saved ✓</span>':'';
+    const reasons=(item.doubt_reasons||[]).map(r=>'• '+String(r||'').slice(0,100)).join('\n');
+    const keyChangeNote=keyChanged?'<div class="ai-key-change">AI suggests index '+aiCI+' ('+String.fromCharCode(65+aiCI)+') instead of '+origCI+' ('+String.fromCharCode(65+origCI)+')</div>':'';
+
+    const aiBlock=item._ai_reason?'<div class="ai-verdict '+v+'">'+esc(item._ai_reason)+'</div>':'';
+
+    const showApprove=!item._committed&&(mode==='manual'||mode==='assisted'||v==='warn'||v==='fail');
+    const actRow=showApprove?'<div class="act-row"><button class="btn-g" onclick="manualDecide('+realIdx+',\'approve\')">Approve & save</button><button class="btn-r" onclick="manualDecide('+realIdx+',\'reject\')">Reject</button></div>':'';
+
+    return '<div class="q-card verdict-'+v+'">'
+      +'<div class="q-head"><div class="q-idx">#'+(i+1)+'</div><div class="q-stem">'+esc(String(p.question||'').slice(0,200))+'</div>'+badge+committed+'</div>'
+      +'<div class="q-opts">'+optHtml+'</div>'
+      +keyChangeNote
+      +'<div class="q-meta"><span class="bdg bdg-n">'+esc(item.subject||'')+'</span><span class="bdg bdg-n">'+esc(item.topic||'?')+'</span><span class="bdg bdg-n">'+esc(item.difficulty||'')+'</span></div>'
+      +(reasons?'<div class="doubt-row">Why flagged: '+esc(reasons.slice(0,200))+'</div>':'')
+      +aiBlock
+      +'<button class="toggle-expl" onclick="toggleExpl('+realIdx+')">Show explanation</button>'
+      +'<div class="expl-box" id="expl-'+realIdx+'">'+esc(String(p.explanation||'').slice(0,500))+'</div>'
+      +actRow
+      +'</div>';
+  }).join('');
+}
+</script>

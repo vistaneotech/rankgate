@@ -1,0 +1,32 @@
+# Nightly question bank fill: POSTs to Netlify `bank-cron` with a shared secret.
+# Repository secrets (Settings → Secrets → Actions):
+#   BANK_CRON_URL     — e.g. https://YOUR_SITE.netlify.app/.netlify/functions/bank-cron
+#   BANK_CRON_SECRET  — same value as Netlify env BANK_CRON_SECRET
+#
+# Netlify env vars for the function: BANK_CRON_SECRET, SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY,
+# ANTHROPIC_KEY and/or OPENAI_KEY, optional BANK_QUESTIONS_PER_SUBJECT (default 2).
+
+name: Question bank cron
+
+on:
+  schedule:
+    - cron: '20 3 * * *'
+  workflow_dispatch:
+
+jobs:
+  bank-cron:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Fill question_bank
+        env:
+          BANK_CRON_URL: ${{ secrets.BANK_CRON_URL }}
+          BANK_CRON_SECRET: ${{ secrets.BANK_CRON_SECRET }}
+        run: |
+          if [ -z "$BANK_CRON_URL" ] || [ -z "$BANK_CRON_SECRET" ]; then
+            echo "Skip: set BANK_CRON_URL and BANK_CRON_SECRET in repo Actions secrets."
+            exit 0
+          fi
+          curl -fsS -X POST "$BANK_CRON_URL" \
+            -H "Authorization: Bearer $BANK_CRON_SECRET" \
+            -H "Content-Type: application/json" \
+            -d '{"perSubject":2,"verify":1}'

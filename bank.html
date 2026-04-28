@@ -1,0 +1,644 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="color-scheme" content="dark light">
+<title>Question Bank — Rank Gate</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#060810;--s1:#0d1117;--s2:#161b27;--s3:#1e2535;--s4:#252d3e;
+  --b1:rgba(148,163,184,.06);--b2:rgba(148,163,184,.12);--b3:rgba(148,163,184,.22);
+  --blue:#3b82f6;--cyan:#06b6d4;--green:#22c55e;--red:#ef4444;
+  --amber:#f59e0b;--purple:#a855f7;--indigo:#6366f1;
+  --text:#e2e8f0;--t2:#94a3b8;--t3:#4b5563;
+  --r:10px;--r2:14px;--r3:20px;
+  --font:'Plus Jakarta Sans',system-ui,sans-serif;
+  --display:'Space Grotesk',system-ui,sans-serif;
+  --mono:'JetBrains Mono',ui-monospace,monospace;
+}
+html[data-theme="light"]{--bg:#f7fafc;--s1:#fff;--s2:#f1f5f9;--s3:#eaf0f7;--s4:#e2e8f0;--b1:rgba(15,23,42,.08);--b2:rgba(15,23,42,.14);--b3:rgba(15,23,42,.24);--text:#0f172a;--t2:#475569;--t3:#64748b;}
+html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--font);overflow-x:hidden}
+::-webkit-scrollbar{width:3px}::-webkit-scrollbar-track{background:var(--s1)}::-webkit-scrollbar-thumb{background:var(--b3);border-radius:2px}
+
+.bk-shell{display:flex;flex-direction:column;height:100vh}
+.bk-topbar{height:52px;background:var(--s1);border-bottom:1px solid var(--b1);display:flex;align-items:center;justify-content:space-between;padding:0 20px;flex-shrink:0;position:sticky;top:0;z-index:80}
+.bk-topbar-left{display:flex;align-items:center;gap:10px}
+.bk-brand{font-family:var(--display);font-weight:800;font-size:.95rem;color:var(--text)}
+.bk-breadcrumb{font-size:.8rem;color:var(--t3)}
+.bk-topbar-right{display:flex;align-items:center;gap:10px}
+.bk-body{display:flex;flex:1;overflow:hidden}
+
+/* Sidebar */
+.bk-sidebar{width:210px;background:var(--s1);border-right:1px solid var(--b1);display:flex;flex-direction:column;flex-shrink:0;overflow-y:auto}
+.bk-sb-logo{padding:16px 16px 10px;border-bottom:1px solid var(--b1)}
+.bk-sb-title{font-family:var(--display);font-weight:800;font-size:.88rem;color:var(--text)}
+.bk-sb-sub{font-size:10px;color:var(--t3);letter-spacing:.8px;text-transform:uppercase;margin-top:2px}
+.bk-nav{flex:1;padding:10px 8px}
+.bk-nav-sec{font-size:9px;font-weight:700;color:var(--t3);letter-spacing:1.4px;text-transform:uppercase;padding:10px 8px 5px}
+.bk-nav-btn{display:flex;align-items:center;gap:8px;padding:8px 10px;border-radius:var(--r);cursor:pointer;color:var(--t2);font-size:12px;font-weight:500;margin-bottom:2px;border:none;background:transparent;width:100%;text-align:left;transition:all .15s}
+.bk-nav-btn:hover{background:var(--b1);color:var(--text)}
+.bk-nav-btn.bk-active{background:rgba(6,182,212,.1);color:var(--cyan);border:1px solid rgba(6,182,212,.2)}
+.bk-nav-ico{width:16px;text-align:center;font-size:13px;flex-shrink:0}
+.bk-nav-badge{margin-left:auto;font-size:9px;font-weight:700;padding:1px 6px;border-radius:99px;background:rgba(59,130,246,.2);color:var(--blue)}
+.bk-nav-badge.w{background:rgba(245,158,11,.2);color:var(--amber)}
+.bk-nav-badge.g{background:rgba(34,197,94,.2);color:var(--green)}
+.bk-sb-foot{padding:12px 14px;border-top:1px solid var(--b1);font-size:11px;color:var(--t3)}
+
+/* Main */
+.bk-main{flex:1;overflow-y:auto}
+.bk-main-inner{padding:22px 24px;max-width:1400px}
+.bk-section{display:none}.bk-section.bk-shown{display:block}
+.bk-sec-title{font-family:var(--display);font-weight:800;font-size:1.15rem;color:var(--text);margin-bottom:4px}
+.bk-sec-sub{font-size:12px;color:var(--t2);margin-bottom:18px;line-height:1.5}
+
+/* Stats */
+.bk-stats{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-bottom:18px}
+.bk-stat{background:var(--s2);border:1px solid var(--b1);border-radius:var(--r2);padding:14px;text-align:center}
+.bk-stat-n{font-family:var(--display);font-weight:800;font-size:1.35rem;line-height:1;margin-bottom:4px}
+.bk-stat-l{font-size:10px;color:var(--t3);text-transform:uppercase;letter-spacing:.6px}
+
+/* Card */
+.bk-card{background:var(--s2);border:1px solid var(--b1);border-radius:var(--r2);padding:16px;margin-bottom:12px}
+.bk-card-title{font-family:var(--display);font-weight:700;font-size:.82rem;color:var(--text);margin-bottom:10px}
+.bk-card-sub{font-size:11px;color:var(--t3);line-height:1.5}
+
+/* Table */
+.bk-wrap{overflow-x:auto;border-radius:var(--r2);border:1px solid var(--b1);margin-bottom:12px}
+.bk-tbl{width:100%;border-collapse:collapse;font-size:12px}
+.bk-tbl th{background:var(--s3);color:var(--t2);font-weight:600;font-size:10px;text-transform:uppercase;letter-spacing:.6px;padding:9px 12px;text-align:left;border-bottom:1px solid var(--b1);white-space:nowrap}
+.bk-tbl td{padding:9px 12px;border-bottom:1px solid var(--b1);vertical-align:middle}
+.bk-tbl tr:last-child td{border-bottom:none}
+.bk-tbl tr:hover td{background:rgba(255,255,255,.012)}
+.bk-qstem{max-width:280px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+
+/* Badges */
+.bk-badge{display:inline-flex;align-items:center;padding:2px 7px;border-radius:4px;font-size:10px;font-weight:700;letter-spacing:.3px}
+.bk-bl{background:rgba(59,130,246,.12);color:var(--blue);border:1px solid rgba(59,130,246,.22)}
+.bk-cy{background:rgba(6,182,212,.12);color:var(--cyan);border:1px solid rgba(6,182,212,.2)}
+.bk-gr{background:rgba(34,197,94,.12);color:var(--green);border:1px solid rgba(34,197,94,.22)}
+.bk-am{background:rgba(245,158,11,.12);color:var(--amber);border:1px solid rgba(245,158,11,.2)}
+.bk-rd{background:rgba(239,68,68,.12);color:var(--red);border:1px solid rgba(239,68,68,.2)}
+.bk-pu{background:rgba(168,85,247,.12);color:var(--purple);border:1px solid rgba(168,85,247,.2)}
+
+/* Buttons */
+.bk-btn{display:inline-flex;align-items:center;gap:5px;padding:5px 11px;border:1px solid var(--b2);border-radius:var(--r);background:transparent;color:var(--t2);font-family:var(--font);font-size:11px;font-weight:500;cursor:pointer;transition:all .15s}
+.bk-btn:hover{border-color:var(--b3);color:var(--text)}
+.bk-btn:disabled{opacity:.4;cursor:not-allowed}
+.bk-btn-p{background:linear-gradient(135deg,var(--blue),var(--cyan));border-color:transparent;color:#fff;font-weight:600}
+.bk-btn-p:hover{opacity:.9}
+.bk-btn-g{border-color:rgba(34,197,94,.3);color:var(--green)}.bk-btn-g:hover{background:rgba(34,197,94,.07)}
+.bk-btn-r{border-color:rgba(239,68,68,.3);color:var(--red)}.bk-btn-r:hover{background:rgba(239,68,68,.07)}
+.bk-btn-row{display:flex;gap:5px;flex-wrap:wrap}
+
+/* Form */
+.bk-lbl{font-size:10px;font-weight:700;color:var(--t3);text-transform:uppercase;letter-spacing:.7px;margin-bottom:5px;display:block}
+.bk-inp{width:100%;padding:8px 11px;background:var(--s3);border:1px solid var(--b2);border-radius:var(--r);color:var(--text);font-family:var(--font);font-size:13px;outline:none;transition:border-color .2s}
+.bk-inp:focus{border-color:var(--blue)}
+.bk-inp-g{margin-bottom:12px}
+
+/* Settings */
+.bk-set-row{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:12px 0;border-bottom:1px solid var(--b1)}
+.bk-set-row:last-child{border-bottom:none}
+.bk-set-lbl{font-size:13px;font-weight:600;color:var(--text)}
+.bk-set-desc{font-size:11px;color:var(--t3);margin-top:2px;line-height:1.4;max-width:460px}
+.bk-toggle{position:relative;width:36px;height:19px;cursor:pointer;flex-shrink:0}
+.bk-toggle input{opacity:0;width:0;height:0;position:absolute}
+.bk-tgl-track{position:absolute;inset:0;background:var(--s3);border-radius:9px;border:1px solid var(--b2);transition:all .2s}
+.bk-toggle input:checked+.bk-tgl-track{background:var(--blue);border-color:var(--blue)}
+.bk-tgl-thumb{position:absolute;top:2px;left:2px;width:13px;height:13px;background:#fff;border-radius:50%;transition:transform .2s;pointer-events:none}
+.bk-toggle input:checked~.bk-tgl-thumb{transform:translateX(17px)}
+input[type=range].bk-range{-webkit-appearance:none;width:120px;height:4px;background:var(--s3);border-radius:2px;outline:none}
+input[type=range].bk-range::-webkit-slider-thumb{-webkit-appearance:none;width:14px;height:14px;border-radius:50%;background:var(--blue);cursor:pointer;border:2px solid var(--bg)}
+.bk-range-val{font-family:var(--mono);font-size:12px;color:var(--blue);min-width:38px;text-align:right;font-weight:700}
+
+/* Pipeline */
+.bk-pipeline{display:flex;gap:0;margin:12px 0}
+.bk-pipe-step{flex:1;padding:9px 6px;background:var(--s3);border:1px solid var(--b1);text-align:center;font-size:10px;color:var(--t2);position:relative}
+.bk-pipe-step:first-child{border-radius:var(--r) 0 0 var(--r)}
+.bk-pipe-step:last-child{border-radius:0 var(--r) var(--r) 0}
+.bk-pipe-step:not(:last-child)::after{content:'→';position:absolute;right:-8px;top:50%;transform:translateY(-50%);color:var(--t3);z-index:1;font-size:11px}
+.bk-pipe-step.bk-done{background:rgba(34,197,94,.07);border-color:rgba(34,197,94,.2);color:var(--green)}
+.bk-pipe-step.bk-cur{background:rgba(59,130,246,.09);border-color:rgba(59,130,246,.25);color:var(--blue)}
+.bk-pipe-ico{font-size:14px;display:block;margin-bottom:3px}
+.bk-pipe-lbl{font-weight:700;font-size:10px}
+.bk-pipe-sub{font-size:9px;opacity:.75;margin-top:1px}
+
+/* QC rows */
+.bk-qc-row{display:flex;align-items:flex-start;gap:10px;padding:8px 10px;background:var(--s3);border-radius:var(--r);margin-bottom:4px}
+.bk-qc-ico{font-size:14px;flex-shrink:0;margin-top:1px}
+.bk-qc-lbl{font-size:12px;color:var(--text);font-weight:500;flex:1;line-height:1.4}
+.bk-qc-desc{font-size:10px;color:var(--t3);margin-top:2px}
+.bk-qc-res{font-size:11px;font-weight:700;flex-shrink:0}
+.bk-qc-pass{color:var(--green)}.bk-qc-fail{color:var(--red)}
+
+/* Progress */
+.bk-prog{height:5px;background:var(--s3);border-radius:3px;overflow:hidden;margin-top:6px}
+.bk-prog-fill{height:100%;border-radius:3px;transition:width .25s}
+
+/* Coverage */
+.bk-cov-row{display:flex;align-items:center;gap:12px;padding:9px 0;border-bottom:1px solid var(--b1)}
+.bk-cov-row:last-child{border-bottom:none}
+
+/* Option boxes */
+.bk-opt{padding:7px 10px;border-radius:var(--r);border:1px solid var(--b1);font-size:12px;color:var(--t2);margin-bottom:5px}
+.bk-opt.bk-correct{border-color:rgba(34,197,94,.35);background:rgba(34,197,94,.07);color:var(--green)}
+.bk-expl{padding:10px;background:var(--s3);border-radius:var(--r);font-size:12px;color:var(--t2);line-height:1.55;border-left:3px solid var(--blue)}
+
+/* Code */
+.bk-code{font-family:var(--mono);font-size:11px;background:var(--s3);border:1px solid var(--b1);border-radius:var(--r);padding:12px;color:var(--cyan);overflow-x:auto;line-height:1.7;white-space:pre}
+
+/* Pagination */
+.bk-pag{display:flex;align-items:center;gap:8px;margin-top:10px;font-size:12px;color:var(--t2)}
+
+/* Modal */
+.bk-modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.72);z-index:300;display:none;align-items:center;justify-content:center;padding:16px}
+.bk-modal-bg.bk-open{display:flex}
+.bk-modal{background:var(--s2);border:1px solid var(--b2);border-radius:var(--r3);max-width:700px;width:100%;max-height:88vh;overflow-y:auto;padding:22px;position:relative}
+.bk-modal-title{font-family:var(--display);font-weight:800;font-size:1rem;margin-bottom:14px;color:var(--text)}
+.bk-modal-close{position:absolute;top:12px;right:14px;background:transparent;border:none;color:var(--t2);font-size:17px;cursor:pointer;padding:4px 8px;border-radius:var(--r)}
+.bk-modal-close:hover{background:var(--b1);color:var(--text)}
+
+/* Filter */
+.bk-filter{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:14px}
+.bk-filter select,.bk-filter input[type=text]{background:var(--s2);border:1px solid var(--b2);border-radius:var(--r);color:var(--text);font-family:var(--font);font-size:12px;padding:6px 10px;outline:none;transition:border-color .2s}
+.bk-filter select:focus,.bk-filter input:focus{border-color:var(--blue)}
+
+/* Add tabs */
+.bk-add-tab{display:inline-flex;align-items:center;gap:5px;padding:7px 14px;border:1px solid var(--b2);border-radius:var(--r);background:transparent;color:var(--t2);font-family:var(--font);font-size:12px;font-weight:500;cursor:pointer;transition:all .15s;margin-right:6px}
+.bk-add-tab.bk-add-active{background:rgba(59,130,246,.1);border-color:rgba(59,130,246,.3);color:var(--blue)}
+
+/* Misc */
+.spin{width:24px;height:24px;border:2px solid var(--b2);border-top-color:var(--blue);border-radius:50%;animation:spin .7s linear infinite;display:block}
+@keyframes spin{to{transform:rotate(360deg)}}
+.toast{position:fixed;bottom:20px;right:20px;background:var(--s2);border:1px solid var(--b2);border-radius:var(--r);padding:12px 16px;font-size:13px;color:var(--text);z-index:9999;transform:translateY(80px);opacity:0;transition:all .3s;max-width:320px}
+.toast.show{transform:translateY(0);opacity:1}
+.toast.success{border-color:var(--green);color:var(--green)}
+.toast.error{border-color:var(--red);color:#f87171}
+code{font-family:var(--mono);font-size:11px;background:var(--s3);padding:1px 5px;border-radius:3px;color:var(--cyan)}
+@media(max-width:700px){.bk-sidebar{display:none}.bk-stats{grid-template-columns:repeat(2,1fr)}}
+</style>
+</head>
+<body>
+<div class="bk-shell">
+  <!-- Topbar -->
+  <div class="bk-topbar">
+    <div class="bk-topbar-left">
+      <button class="bk-btn" onclick="goAdmin()">← Admin</button>
+      <span class="bk-brand">Rank Gate</span>
+      <span class="bk-breadcrumb">/ Question Bank</span>
+    </div>
+    <div class="bk-topbar-right">
+      <span style="font-size:12px;color:var(--t2)">Approved: <b id="bk-hdr-approved" style="color:var(--green)">0</b></span>
+      <span style="font-size:12px;color:var(--t2)">Serve: <b id="bk-hdr-pct" style="color:var(--cyan)">—%</b></span>
+      <button class="bk-btn bk-btn-p" onclick="bkNav('add')">+ Add Question</button>
+    </div>
+  </div>
+
+  <div class="bk-body">
+    <!-- Sidebar -->
+    <nav class="bk-sidebar">
+      <div class="bk-sb-logo">
+        <div class="bk-sb-title">Question Bank</div>
+        <div class="bk-sb-sub">🗃️ Manager</div>
+      </div>
+      <div class="bk-nav">
+        <div class="bk-nav-sec">Overview</div>
+        <button class="bk-nav-btn bk-active" id="bk-nb-dashboard" onclick="bkNav('dashboard')"><span class="bk-nav-ico">📊</span>Dashboard<span class="bk-nav-badge g" id="bk-badge-total">0</span></button>
+        <button class="bk-nav-btn" id="bk-nb-pipeline" onclick="bkNav('pipeline')"><span class="bk-nav-ico">⚙️</span>QC Pipeline<span class="bk-nav-badge w" id="bk-badge-pending">0</span></button>
+        <div class="bk-nav-sec">Manage</div>
+        <button class="bk-nav-btn" id="bk-nb-browse" onclick="bkNav('browse')"><span class="bk-nav-ico">🗃️</span>Browse Bank</button>
+        <button class="bk-nav-btn" id="bk-nb-add" onclick="bkNav('add')"><span class="bk-nav-ico">➕</span>Add / Import</button>
+        <button class="bk-nav-btn" id="bk-nb-review" onclick="bkNav('review')"><span class="bk-nav-ico">✋</span>Review Queue<span class="bk-nav-badge w" id="bk-badge-review">0</span></button>
+        <div class="bk-nav-sec">Distribution</div>
+        <button class="bk-nav-btn" id="bk-nb-settings" onclick="bkNav('settings')"><span class="bk-nav-ico">🎛️</span>Bank Settings</button>
+        <button class="bk-nav-btn" id="bk-nb-coverage" onclick="bkNav('coverage')"><span class="bk-nav-ico">🗺️</span>Coverage Map</button>
+        <button class="bk-nav-btn" id="bk-nb-antirepeat" onclick="bkNav('antirepeat')"><span class="bk-nav-ico">🔁</span>Anti-Repeat</button>
+        <div class="bk-nav-sec">Analytics</div>
+        <button class="bk-nav-btn" id="bk-nb-analytics" onclick="bkNav('analytics')"><span class="bk-nav-ico">📈</span>Performance</button>
+      </div>
+      <div class="bk-sb-foot"><div style="color:var(--t2);font-weight:600">Question Bank v2</div><div style="margin-top:3px">Rank Gate 2026</div></div>
+    </nav>
+
+    <!-- Main -->
+    <div class="bk-main">
+      <div class="bk-main-inner" id="bk-main-inner">
+        <div style="text-align:center;padding:32px">
+          <div class="spin" style="margin:0 auto 12px"></div>
+          <div style="color:var(--t2);font-size:13px">Loading question bank…</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Inspect Modal -->
+<div class="bk-modal-bg" id="bk-modal-inspect">
+  <div class="bk-modal">
+    <button class="bk-modal-close" onclick="bkCloseInspect()">✕</button>
+    <div id="bk-inspect-body"></div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<script src="app.js"></script>
+<script>
+// ── bank.html bootstrap ──
+let USER=null, PROFILE=null, APP_SETTINGS={}, DB_SESSIONS=[], sb=null;
+
+function showToast(msg,type=''){const t=document.getElementById('toast');t.textContent=msg;t.className='toast'+(type?' '+type:'');t.classList.add('show');setTimeout(()=>t.classList.remove('show'),3500);}
+function escapeHtml(s){return String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+
+function _restoreState(){
+  try{const raw=localStorage.getItem('rg_session_state');if(!raw)return false;const state=JSON.parse(raw);USER=state.user||null;PROFILE=state.profile||null;APP_SETTINGS=state.settings||{};return !!(USER&&PROFILE&&PROFILE.role==='admin');}catch(_e){return false;}
+}
+
+async function initBank(){
+  _restoreState();
+  try{const raw=localStorage.getItem('app_settings');const s=raw?JSON.parse(raw):{};const url=s?.supabase?.url||'';const key=s?.supabase?.anon_key||'';if(url&&key)sb=supabase.createClient(url,key);}catch(_e){}
+  if(sb){try{const{data:{session}}=await sb.auth.getSession();if(session?.user){USER=session.user;const{data:p}=await sb.from('profiles').select('*').eq('id',USER.id).single();if(p)PROFILE=p;}}catch(_e){}}
+  if(!USER||!PROFILE||PROFILE.role!=='admin'){
+    document.getElementById('bk-main-inner').innerHTML=`<div class="bk-card"><div class="bk-card-title" style="color:var(--red)">Access Denied</div><div class="bk-card-sub">Admin role required. <button class="bk-btn" onclick="goHome()" style="margin-top:10px">← Go to Login</button></div></div>`;
+    return;
+  }
+  try{const th=localStorage.getItem('theme')||'dark';document.documentElement.setAttribute('data-theme',th);}catch(_e){}
+  await bkLoadData();
+  bkNav('dashboard');
+}
+
+// ── State ──
+const BK={bank:[],filtered:[],page:0,pageSize:25,loaded:false,settings:{globalPct:40,minBank:30,maxReuse:10,noRepeat:true,shuffle:true,preferHard:true,autoRetire:true,examOverrides:{}}};
+const BK_EXAMS=['BITSAT','JEE_MAIN','JEE_ADV','NEET','CUET','IISER_IAT','NEST','ISI','SAT','ACT','IELTS','TOEFL','GRE','GMAT','CAT','IPMAT','JIPMAT','GATE_2027'];
+const BK_SUBS={BITSAT:['Physics','Chemistry','Math','English','LR'],JEE_MAIN:['Physics','Chemistry','Math'],JEE_ADV:['Physics','Chemistry','Math'],NEET:['Physics','Chemistry','Biology'],CUET:['Physics','Chemistry','Math','Biology','English','General'],IISER_IAT:['Physics','Chemistry','Math','Biology'],GATE_2027:['GATE_GA','GATE_MATH','GATE_CORE'],SAT:['SAT_RW','SAT_MATH'],ACT:['ACT_ENG','ACT_MATH','ACT_READ','ACT_SCI'],IELTS:['IELTS_LISTEN','IELTS_READ'],TOEFL:['TOEFL_READ','TOEFL_LISTEN'],GRE:['GRE_VERB','GRE_QUANT'],GMAT:['GMAT_VERB','GMAT_QUANT','GMAT_DI'],CAT:['CAT_VARC','CAT_DILR','CAT_QA'],IPMAT:['APT_QA','APT_DILR','APT_VAR'],JIPMAT:['APT_QA','APT_DILR','APT_VAR']};
+const BK_QC=[
+  {ico:'📝',lbl:'Stem ≥ 20 chars',desc:'Prevents placeholder stems.',fn:q=>String(q.question||'').trim().length>=20},
+  {ico:'🔢',lbl:'4 distinct options',desc:'All 4 non-empty and unique.',fn:q=>Array.isArray(q.options)&&q.options.length===4&&new Set(q.options.map(o=>String(o||'').toLowerCase().trim())).size===4},
+  {ico:'🎯',lbl:'Correct key 0–3',desc:'correct must be 0,1,2 or 3.',fn:q=>{const c=Number(q.correct);return Number.isInteger(c)&&c>=0&&c<=3;}},
+  {ico:'💡',lbl:'Explanation ≥ 30 chars',desc:'Thin explanations cannot justify.',fn:q=>String(q.explanation||'').trim().length>=30},
+  {ico:'🚫',lbl:'No wrong-option praise',desc:'Explanation must not call a wrong option correct.',fn:q=>!/\b(option\s*)?[ABCD]\b\s*(is|:)\s*(correct|right)\b/i.test(String(q.explanation||'').replace(/the correct/gi,''))},
+  {ico:'✅',lbl:'Key matches explanation',desc:'Inferred answer agrees with key.',fn:q=>{try{const inf=inferCorrectFromExplanation(String(q.explanation||''));return inf===null||inf===Number(q.correct);}catch(_e){return true;}}},
+  {ico:'🏷️',lbl:'Exam + Subject + Chapter',desc:'All three metadata fields non-empty.',fn:q=>!!(q.exam&&q.subject&&q.topic)},
+  {ico:'🌍',lbl:'English variant',desc:'Indian exams → British, international → American.',fn:()=>true},
+];
+function bkRunQC(q){return BK_QC.map(c=>{let pass=false;try{pass=!!c.fn(q);}catch(_e){}return{...c,pass};});}
+
+// ── Load data ──
+async function bkLoadData(){
+  BK.bank=[];
+  try{const local=JSON.parse(localStorage.getItem('question_bank_local')||'[]');if(Array.isArray(local))BK.bank.push(...local.map(q=>({...q,_src:'local',status:q.status||'approved',uses:q.use_count||0,correctRate:q.use_count&&q.correct_count?Math.round(q.correct_count/q.use_count*100):0,avgTime:0})));}catch(_e){}
+  if(sb){
+    try{const{data,error}=await sb.from('question_bank').select('*').order('created_at',{ascending:false}).limit(2000);if(!error&&data){const ids=new Set(data.map(r=>String(r.id||'')));BK.bank=BK.bank.filter(q=>!ids.has(String(q.id||'')));data.forEach(r=>BK.bank.push({...r,_src:'remote',status:r.status||'approved',uses:r.use_count||0,correctRate:r.use_count&&r.correct_count?Math.round(r.correct_count/r.use_count*100):0,avgTime:0,options:Array.isArray(r.options)?r.options:[]}));}}catch(_e){}
+    try{const{count}=await sb.from('question_review_queue').select('id',{count:'exact',head:true}).eq('status','pending');const b=document.getElementById('bk-badge-review');if(b)b.textContent=count||0;}catch(_e){}
+  }
+  BK.filtered=[...BK.bank];BK.loaded=true;bkSyncStats();bkPopDrops();
+}
+
+function bkSyncStats(){
+  const app=BK.bank.filter(q=>q.status==='approved').length;
+  const pnd=BK.bank.filter(q=>q.status==='pending').length;
+  const fld=BK.bank.filter(q=>q.status==='failed').length;
+  const exs=new Set(BK.bank.map(q=>q.exam).filter(Boolean)).size;
+  const S=(id,v)=>{const e=document.getElementById(id);if(e)e.textContent=v;};
+  S('bk-st-total',BK.bank.length);S('bk-st-approved',app);S('bk-st-pending',pnd);S('bk-st-failed',fld);S('bk-st-exams',exs);
+  S('bk-badge-total',BK.bank.length);S('bk-badge-pending',pnd+fld);
+  S('bk-hdr-approved',app);S('bk-hdr-pct',BK.settings.globalPct+'%');
+}
+
+function bkPopDrops(){
+  const exams=[...new Set(BK.bank.map(q=>q.exam).filter(Boolean))].sort();
+  const subs=[...new Set(BK.bank.map(q=>q.subject).filter(Boolean))].sort();
+  ['bk-f-exam','bk-cov-exam','bk-an-exam'].forEach(id=>{const el=document.getElementById(id);if(!el)return;const cur=el.value;el.innerHTML='<option value="">All Exams</option>';exams.forEach(e=>el.appendChild(new Option(e,e)));el.value=cur;});
+  const fs=document.getElementById('bk-f-subject');if(fs){fs.innerHTML='<option value="">All Subjects</option>';subs.forEach(s=>fs.appendChild(new Option(s,s)));}
+  const mex=document.getElementById('bk-m-exam');if(mex&&mex.options.length<=1)BK_EXAMS.forEach(e=>mex.appendChild(new Option(e,e)));
+}
+
+// ── Section render system ──
+const BK_SECTIONS={};
+function bkNav(sec){
+  document.querySelectorAll('.bk-nav-btn').forEach(b=>b.classList.remove('bk-active'));
+  const nb=document.getElementById('bk-nb-'+sec);if(nb)nb.classList.add('bk-active');
+  const inner=document.getElementById('bk-main-inner');
+  if(!inner)return;
+  inner.innerHTML=BK_RENDER[sec]?BK_RENDER[sec]():'<div class="bk-card">Section not found.</div>';
+  if(sec==='dashboard')bkAfterDashboard();
+  if(sec==='browse'){bkFilterApply();}
+  if(sec==='review')bkAfterReview();
+  if(sec==='settings')bkAfterSettings();
+  if(sec==='coverage')bkAfterCoverage();
+  if(sec==='antirepeat')bkAfterAntiRepeat();
+  if(sec==='analytics')bkAfterAnalytics();
+}
+
+const BK_RENDER={
+dashboard:()=>`<div class="bk-sec-title">Bank Overview</div><div class="bk-sec-sub">All approved questions ready for distribution across mock tests</div>
+<div class="bk-stats">
+  <div class="bk-stat"><div class="bk-stat-n" style="color:var(--blue)" id="bk-st-total">0</div><div class="bk-stat-l">Total</div></div>
+  <div class="bk-stat"><div class="bk-stat-n" style="color:var(--green)" id="bk-st-approved">0</div><div class="bk-stat-l">Approved ✓</div></div>
+  <div class="bk-stat"><div class="bk-stat-n" style="color:var(--amber)" id="bk-st-pending">0</div><div class="bk-stat-l">Pending QC</div></div>
+  <div class="bk-stat"><div class="bk-stat-n" style="color:var(--red)" id="bk-st-failed">0</div><div class="bk-stat-l">Failed QC</div></div>
+  <div class="bk-stat"><div class="bk-stat-n" style="color:var(--purple)" id="bk-st-exams">0</div><div class="bk-stat-l">Exams</div></div>
+</div>
+<div class="bk-card">
+  <div class="bk-card-title">Processing Pipeline</div>
+  <div class="bk-pipeline">
+    <div class="bk-pipe-step bk-done"><span class="bk-pipe-ico">🤖</span><span class="bk-pipe-lbl">AI Generate</span><span class="bk-pipe-sub">API / Import</span></div>
+    <div class="bk-pipe-step bk-done"><span class="bk-pipe-ico">🔢</span><span class="bk-pipe-lbl">Answer Verify</span><span class="bk-pipe-sub">Key locked</span></div>
+    <div class="bk-pipe-step bk-done"><span class="bk-pipe-ico">📝</span><span class="bk-pipe-lbl">Explanation QC</span><span class="bk-pipe-sub">Correct only</span></div>
+    <div class="bk-pipe-step bk-done"><span class="bk-pipe-ico">🌍</span><span class="bk-pipe-lbl">English Check</span><span class="bk-pipe-sub">British/American</span></div>
+    <div class="bk-pipe-step bk-done"><span class="bk-pipe-ico">🏷️</span><span class="bk-pipe-lbl">Metadata Tag</span><span class="bk-pipe-sub">Exam·Sub·Chapter</span></div>
+    <div class="bk-pipe-step bk-cur"><span class="bk-pipe-ico">👤</span><span class="bk-pipe-lbl">Admin Review</span><span class="bk-pipe-sub">Manual only</span></div>
+    <div class="bk-pipe-step"><span class="bk-pipe-ico">✅</span><span class="bk-pipe-lbl">Bank Active</span><span class="bk-pipe-sub">Ready to serve</span></div>
+  </div>
+</div>
+<div class="bk-card" style="margin-top:12px">
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+    <div class="bk-card-title" style="margin-bottom:0">Questions by Exam</div>
+    <button class="bk-btn" onclick="bkNav('coverage')">Full Coverage →</button>
+  </div>
+  <div id="bk-dash-exam"></div>
+</div>
+<div class="bk-card" style="margin-top:12px">
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+    <div class="bk-card-title" style="margin-bottom:0">Recently Approved</div>
+    <button class="bk-btn" onclick="bkNav('browse')">Browse All →</button>
+  </div>
+  <div id="bk-dash-recent"></div>
+</div>`,
+
+pipeline:()=>`<div class="bk-sec-title">Quality Control Pipeline</div><div class="bk-sec-sub">Every question passes 8 automated checks before entering the approved bank</div>
+<div class="bk-card"><div class="bk-card-title">Automated Checks</div>${BK_QC.map(c=>`<div class="bk-qc-row"><span class="bk-qc-ico">${c.ico}</span><div style="flex:1"><div class="bk-qc-lbl">${c.lbl}</div><div class="bk-qc-desc">${c.desc}</div></div></div>`).join('')}</div>
+<div class="bk-card" style="margin-top:12px"><div class="bk-card-title">Batch QC Run</div><div class="bk-card-sub">Re-run all quality checks on existing bank questions.</div>
+<div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap">
+  <button class="bk-btn bk-btn-p" onclick="bkBatchQC()">🔍 Run QC on All</button>
+  <button class="bk-btn" onclick="bkExportFailed()">Export Failed CSV</button>
+</div>
+<div id="bk-qc-progress" style="display:none;margin-top:12px"><div class="bk-lbl">Processing…</div><div class="bk-prog"><div class="bk-prog-fill" id="bk-qc-fill" style="width:0%;background:var(--blue)"></div></div><div style="font-size:11px;color:var(--t2);margin-top:4px" id="bk-qc-txt"></div></div>
+<div id="bk-qc-results" style="margin-top:12px"></div></div>`,
+
+browse:()=>`<div class="bk-sec-title">Browse Question Bank</div><div class="bk-sec-sub">Filter, inspect, approve or remove questions</div>
+<div class="bk-filter">
+  <input type="text" id="bk-f-search" placeholder="Search…" oninput="bkFilterApply()" style="min-width:160px;flex:1">
+  <select id="bk-f-exam" onchange="bkFilterApply()"><option value="">All Exams</option></select>
+  <select id="bk-f-subject" onchange="bkFilterApply()"><option value="">All Subjects</option></select>
+  <select id="bk-f-diff" onchange="bkFilterApply()"><option value="">All Difficulty</option><option>easy</option><option>medium</option><option>hard</option></select>
+  <select id="bk-f-status" onchange="bkFilterApply()"><option value="">All Status</option><option value="approved">Approved</option><option value="pending">Pending</option><option value="failed">Failed</option></select>
+  <button class="bk-btn" onclick="bkClearFilter()">Clear</button>
+  <span style="font-size:11px;color:var(--t3)" id="bk-f-count"></span>
+</div>
+<div class="bk-wrap"><table class="bk-tbl"><thead><tr><th>#</th><th>Question</th><th>Exam</th><th>Subject</th><th>Chapter</th><th>Diff</th><th>Status</th><th>Used</th><th>Correct%</th><th></th></tr></thead><tbody id="bk-browse-body"></tbody></table></div>
+<div class="bk-pag" id="bk-browse-pag"></div>`,
+
+add:()=>`<div class="bk-sec-title">Add / Import Questions</div><div class="bk-sec-sub">Manual entry or bulk import — all questions run through 8-check QC automatically</div>
+<div style="margin-bottom:14px">
+  <button class="bk-add-tab bk-add-active" id="bk-atab-manual" onclick="bkAddTab('manual')">✏️ Manual Entry</button>
+  <button class="bk-add-tab" id="bk-atab-json" onclick="bkAddTab('json')">{ } JSON Import</button>
+  <button class="bk-add-tab" id="bk-atab-csv" onclick="bkAddTab('csv')">📄 CSV Template</button>
+</div>
+<div class="bk-card" id="bk-panel-manual">
+  <div class="bk-card-title">Add Single Question</div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+    <div class="bk-inp-g"><span class="bk-lbl">Exam *</span><select class="bk-inp" id="bk-m-exam" onchange="bkSyncSubs()"><option value="">Select exam…</option></select></div>
+    <div class="bk-inp-g"><span class="bk-lbl">Subject *</span><select class="bk-inp" id="bk-m-subject"><option value="">Select subject…</option></select></div>
+    <div class="bk-inp-g"><span class="bk-lbl">Chapter / Topic *</span><input class="bk-inp" id="bk-m-chapter" placeholder="e.g. Kinematics"></div>
+    <div class="bk-inp-g"><span class="bk-lbl">Difficulty</span><select class="bk-inp" id="bk-m-diff"><option value="easy">Easy</option><option value="medium" selected>Medium</option><option value="hard">Hard</option></select></div>
+  </div>
+  <div class="bk-inp-g"><span class="bk-lbl">Question Stem *</span><textarea class="bk-inp" id="bk-m-stem" rows="3" style="resize:vertical" placeholder="Full question text…"></textarea></div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px">
+    <div class="bk-inp-g"><span class="bk-lbl">Option A</span><input class="bk-inp" id="bk-m-a"></div>
+    <div class="bk-inp-g"><span class="bk-lbl">Option B</span><input class="bk-inp" id="bk-m-b"></div>
+    <div class="bk-inp-g"><span class="bk-lbl">Option C</span><input class="bk-inp" id="bk-m-c"></div>
+    <div class="bk-inp-g"><span class="bk-lbl">Option D</span><input class="bk-inp" id="bk-m-d"></div>
+  </div>
+  <div style="display:grid;grid-template-columns:120px 1fr;gap:10px">
+    <div class="bk-inp-g"><span class="bk-lbl">Correct *</span><select class="bk-inp" id="bk-m-correct"><option value="0">A</option><option value="1">B</option><option value="2">C</option><option value="3">D</option></select></div>
+    <div class="bk-inp-g"><span class="bk-lbl">Explanation * (correct answer only)</span><textarea class="bk-inp" id="bk-m-expl" rows="3" style="resize:vertical"></textarea></div>
+  </div>
+  <div style="display:flex;gap:8px;align-items:center;margin-top:4px">
+    <button class="bk-btn bk-btn-p" onclick="bkSubmitManual()">Run QC &amp; Add to Bank</button>
+    <button class="bk-btn" onclick="bkClearManual()">Clear</button>
+    <span style="font-size:12px;color:var(--t2)" id="bk-m-status"></span>
+  </div>
+  <div id="bk-m-qc-result" style="margin-top:12px"></div>
+</div>
+<div class="bk-card" id="bk-panel-json" style="display:none">
+  <div class="bk-card-title">Bulk JSON Import</div>
+  <div style="font-size:11px;color:var(--t3);margin-bottom:10px">Array of objects. Each needs: <code>exam, subject, topic, question, options[4], correct(0-3), explanation, difficulty</code></div>
+  <textarea class="bk-inp" id="bk-json-in" rows="10" style="resize:vertical;font-family:var(--mono);font-size:11px" placeholder='[{"exam":"BITSAT","subject":"Physics","topic":"Kinematics","question":"...","options":["...","...","...","..."],"correct":0,"explanation":"...","difficulty":"medium"}]'></textarea>
+  <div style="display:flex;gap:8px;margin-top:10px;align-items:center;flex-wrap:wrap">
+    <button class="bk-btn bk-btn-p" onclick="bkImportJSON()">Parse &amp; Run QC</button>
+    <button class="bk-btn" onclick="document.getElementById('bk-json-in').value=''">Clear</button>
+  </div>
+  <div id="bk-json-results" style="margin-top:12px"></div>
+</div>
+<div class="bk-card" id="bk-panel-csv" style="display:none">
+  <div class="bk-card-title">CSV Template</div>
+  <div style="font-size:11px;color:var(--t3);margin-bottom:10px">Required: exam, subject, topic, question, option_a/b/c/d, correct (0–3), explanation, difficulty</div>
+  <div class="bk-btn-row">
+    <button class="bk-btn bk-btn-p" onclick="bkDownloadCSV()">⬇ Download Template</button>
+    <label class="bk-btn" style="cursor:pointer">⬆ Upload CSV<input type="file" accept=".csv" style="display:none" onchange="bkUploadCSV(this)"></label>
+  </div>
+  <div id="bk-csv-results" style="margin-top:12px"></div>
+</div>`,
+
+review:()=>`<div class="bk-sec-title">Review Queue</div><div class="bk-sec-sub">Questions flagged by automated QC. Approve → bank. Reject → discarded.</div>
+<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px">
+  <button class="bk-btn bk-btn-p" onclick="bkApproveAllSafe()">✓ Approve All Safe</button>
+  <button class="bk-btn bk-btn-r" onclick="bkRejectAllFailed()">✕ Reject All Failed</button>
+  <button class="bk-btn" onclick="bkNav('review')">↺ Refresh</button>
+</div>
+<div id="bk-review-list"></div>`,
+
+settings:()=>`<div class="bk-sec-title">Bank Distribution Settings</div><div class="bk-sec-sub">Control what % of each mock test is served from the approved bank vs live AI generation</div>
+<div class="bk-card"><div class="bk-card-title">Global Ratios</div>
+  <div class="bk-set-row"><div><div class="bk-set-lbl">Bank → API Ratio (all exams)</div><div class="bk-set-desc">% of questions from the bank. Remainder generated live via AI. Only activates when bank meets minimum size.</div></div><div style="display:flex;align-items:center;gap:8px;flex-shrink:0"><input type="range" class="bk-range" min="0" max="100" step="5" id="bk-s-global" value="${BK.settings.globalPct}" oninput="bkRangeVal('bk-s-global','bk-sv-global','%')"><span class="bk-range-val" id="bk-sv-global">${BK.settings.globalPct}%</span></div></div>
+  <div class="bk-set-row"><div><div class="bk-set-lbl">Minimum Bank Size to Activate</div><div class="bk-set-desc">Bank only used when subject+exam has at least this many unseen approved questions for the student.</div></div><div style="display:flex;align-items:center;gap:8px;flex-shrink:0"><input type="range" class="bk-range" min="5" max="200" step="5" id="bk-s-min" value="${BK.settings.minBank}" oninput="bkRangeVal('bk-s-min','bk-sv-min','')"><span class="bk-range-val" id="bk-sv-min">${BK.settings.minBank}</span></div></div>
+  <div class="bk-set-row"><div><div class="bk-set-lbl">Max Reuse Per Question</div><div class="bk-set-desc">After this many serves across all students, question moves to retired pool. 0 = unlimited.</div></div><div style="display:flex;align-items:center;gap:8px;flex-shrink:0"><input type="range" class="bk-range" min="0" max="100" step="1" id="bk-s-reuse" value="${BK.settings.maxReuse}" oninput="bkRangeVal('bk-s-reuse','bk-sv-reuse','')"><span class="bk-range-val" id="bk-sv-reuse">${BK.settings.maxReuse}</span></div></div>
+</div>
+<div class="bk-card" style="margin-top:12px"><div class="bk-card-title">Per-Exam Overrides</div><div class="bk-card-sub" style="margin-bottom:12px">Set –1 to inherit global. 0–100 to override for that exam.</div><div id="bk-exam-overrides"></div></div>
+<div class="bk-card" style="margin-top:12px"><div class="bk-card-title">Distribution Rules</div>
+  <div class="bk-set-row"><div><div class="bk-set-lbl">Same question, same student → never repeat</div><div class="bk-set-desc">Per-user fingerprint tracking in Supabase seen_questions table.</div></div><label class="bk-toggle"><input type="checkbox" id="bk-s-norepeat" ${BK.settings.noRepeat?'checked':''}><span class="bk-tgl-track"></span><span class="bk-tgl-thumb"></span></label></div>
+  <div class="bk-set-row"><div><div class="bk-set-lbl">Shuffle option order on each serve</div><div class="bk-set-desc">Re-randomise A/B/C/D; answer key updates automatically.</div></div><label class="bk-toggle"><input type="checkbox" id="bk-s-shuffle" ${BK.settings.shuffle?'checked':''}><span class="bk-tgl-track"></span><span class="bk-tgl-thumb"></span></label></div>
+  <div class="bk-set-row"><div><div class="bk-set-lbl">Prefer bank for hard questions (adaptive mode)</div><div class="bk-set-desc">When adaptive requests a hard question and bank has a verified hard one, prefer the bank.</div></div><label class="bk-toggle"><input type="checkbox" id="bk-s-prefhard" ${BK.settings.preferHard?'checked':''}><span class="bk-tgl-track"></span><span class="bk-tgl-thumb"></span></label></div>
+  <div class="bk-set-row"><div><div class="bk-set-lbl">Auto-flag questions with &lt;40% correct rate</div><div class="bk-set-desc">After 20+ serves, if correct rate drops below 40%, flag for admin review.</div></div><label class="bk-toggle"><input type="checkbox" id="bk-s-autoretire" ${BK.settings.autoRetire?'checked':''}><span class="bk-tgl-track"></span><span class="bk-tgl-thumb"></span></label></div>
+</div>
+<div style="margin-top:14px;display:flex;gap:8px"><button class="bk-btn bk-btn-p" onclick="bkSaveSettings()">Save Settings</button><button class="bk-btn" onclick="bkResetSettings()">Reset Defaults</button></div>
+<div class="bk-card" style="margin-top:16px"><div class="bk-card-title">Generated APP_SETTINGS.bank Snippet</div><div class="bk-card-sub" style="margin-bottom:8px">Paste into your Supabase <code>app_settings</code> row or <code>DEFAULT_SETTINGS.bank</code> in index.html.</div><pre class="bk-code" id="bk-settings-code"></pre><button class="bk-btn" style="margin-top:8px" onclick="navigator.clipboard.writeText(document.getElementById('bk-settings-code').textContent).then(()=>showToast('Copied ✓','success'))">Copy</button></div>`,
+
+coverage:()=>`<div class="bk-sec-title">Coverage Map</div><div class="bk-sec-sub">Approved questions per Exam → Subject → Chapter. Green ≥10, Amber ≥5, Red &lt;5.</div>
+<div class="bk-filter" style="margin-bottom:12px"><select id="bk-cov-exam" onchange="bkAfterCoverage()"><option value="">All Exams</option></select><span style="font-size:11px;color:var(--t3);margin-left:auto" id="bk-cov-count"></span></div>
+<div id="bk-coverage-grid"></div>`,
+
+antirepeat:()=>`<div class="bk-sec-title">Anti-Repeat Engine</div><div class="bk-sec-sub">Every question is fingerprinted. No student ever sees the same question twice in the same exam.</div>
+<div class="bk-stats" style="grid-template-columns:repeat(4,1fr);margin-bottom:14px">
+  <div class="bk-stat"><div class="bk-stat-n" style="color:var(--blue)" id="ar-serves">0</div><div class="bk-stat-l">Total Serves</div></div>
+  <div class="bk-stat"><div class="bk-stat-n" style="color:var(--green)" id="ar-unique">0</div><div class="bk-stat-l">Questions Used</div></div>
+  <div class="bk-stat"><div class="bk-stat-n" style="color:var(--amber)" id="ar-retiring">0</div><div class="bk-stat-l">Near Retirement</div></div>
+  <div class="bk-stat"><div class="bk-stat-n" style="color:var(--red)" id="ar-retired">0</div><div class="bk-stat-l">Retired</div></div>
+</div>
+<div class="bk-card"><div class="bk-card-title">How It Works</div><div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px">
+  <div class="bk-qc-row"><span class="bk-qc-ico">🔑</span><div><div class="bk-qc-lbl">Question Fingerprinting</div><div class="bk-qc-desc">SHA32 hash of subject+topic+stem+options. Unique stable ID per question.</div></div></div>
+  <div class="bk-qc-row"><span class="bk-qc-ico">👤</span><div><div class="bk-qc-lbl">Per-User Seen Set</div><div class="bk-qc-desc">Stored in Supabase seen_questions. Persists across sessions and devices.</div></div></div>
+  <div class="bk-qc-row"><span class="bk-qc-ico">🏫</span><div><div class="bk-qc-lbl">Per-Exam Isolation</div><div class="bk-qc-desc">BITSAT seen ≠ JEE seen. Same question can appear across different exams.</div></div></div>
+  <div class="bk-qc-row"><span class="bk-qc-ico">♻️</span><div><div class="bk-qc-lbl">Retirement Pool</div><div class="bk-qc-desc">After max-reuse, question moves to retired. Returns only when fresh pool exhausted.</div></div></div>
+</div></div>
+<div class="bk-card" style="margin-top:12px"><div class="bk-card-title">Required Supabase SQL</div><pre class="bk-code" id="bk-schema-sql"></pre><button class="bk-btn" style="margin-top:8px" onclick="navigator.clipboard.writeText(document.getElementById('bk-schema-sql').textContent).then(()=>showToast('SQL copied ✓','success'))">Copy SQL</button></div>`,
+
+analytics:()=>`<div class="bk-sec-title">Question Performance Analytics</div><div class="bk-sec-sub">Per-question correct rates to catch bad answer keys and surface top performers</div>
+<div class="bk-filter"><select id="bk-an-exam" onchange="bkAfterAnalytics()"><option value="">All Exams</option></select><select id="bk-an-flag" onchange="bkAfterAnalytics()"><option value="">All</option><option value="suspect">⚠ Suspect (&lt;40%)</option><option value="top">🌟 Top Performers</option></select></div>
+<div class="bk-wrap"><table class="bk-tbl"><thead><tr><th>Question</th><th>Exam</th><th>Subject</th><th>Chapter</th><th>Used</th><th>Correct%</th><th>Avg Time</th><th>Flag</th><th></th></tr></thead><tbody id="bk-analytics-body"></tbody></table></div>`
+};
+
+// ── After-render hooks (populate dynamic data after HTML is set) ──
+function bkAfterDashboard(){
+  bkSyncStats();
+  const approved=BK.bank.filter(q=>q.status==='approved');
+  const byExam={};approved.forEach(q=>{byExam[q.exam]=(byExam[q.exam]||0)+1;});
+  const min=BK.settings.minBank;
+  const examEl=document.getElementById('bk-dash-exam');
+  if(examEl)examEl.innerHTML=Object.entries(byExam).map(([ex,n])=>{const ok=n>=min;return`<div class="bk-cov-row"><div style="min-width:90px"><span class="bk-badge ${ok?'bk-gr':'bk-am'}">${escapeHtml(ex)}</span></div><div style="flex:1"><div style="display:flex;align-items:center;gap:8px;margin-bottom:3px"><span style="font-size:12px;font-weight:600;color:var(--text)">${n} questions</span><span style="font-size:10px;color:${ok?'var(--green)':'var(--amber)'}">${ok?'✓ Active':'⚠ Need '+(min-n)+' more'}</span></div><div class="bk-prog"><div class="bk-prog-fill" style="width:${Math.min(100,n/min*100)}%;background:${ok?'var(--green)':'var(--amber)'}"></div></div></div></div>`;}).join('')||'<div style="color:var(--t3);font-size:12px;padding:10px 0">No approved questions yet.</div>';
+  const recEl=document.getElementById('bk-dash-recent');
+  const recent=approved.slice(0,6);
+  if(recEl)recEl.innerHTML=recent.length?`<div class="bk-wrap"><table class="bk-tbl"><thead><tr><th>Question</th><th>Exam</th><th>Subject</th><th>Chapter</th><th>Diff</th></tr></thead><tbody>${recent.map(q=>`<tr><td class="bk-qstem" title="${escapeHtml(q.question)}">${escapeHtml((q.question||'').slice(0,65))}…</td><td><span class="bk-badge bk-bl">${escapeHtml(q.exam||'')}</span></td><td style="font-size:11px">${escapeHtml(q.subject||'')}</td><td style="font-size:11px">${escapeHtml(q.topic||'')}</td><td><span class="bk-badge ${q.difficulty==='hard'?'bk-rd':q.difficulty==='easy'?'bk-gr':'bk-am'}">${q.difficulty||'medium'}</span></td></tr>`).join('')}</tbody></table></div>`:'<div style="color:var(--t3);font-size:12px;padding:10px 0">No approved questions yet.</div>';
+}
+
+function bkAfterReview(){
+  const pending=BK.bank.filter(q=>q.status==='pending'||q.status==='failed');
+  const badge=document.getElementById('bk-badge-review');if(badge)badge.textContent=pending.length;
+  const labs=['A','B','C','D'];
+  const list=document.getElementById('bk-review-list');if(!list)return;
+  if(!pending.length){list.innerHTML=`<div class="bk-card"><div style="text-align:center;color:var(--t3);padding:20px">✅ No items pending review</div></div>`;return;}
+  list.innerHTML=pending.map(q=>{const fails=bkRunQC(q).filter(c=>!c.pass);const corr=Number(q.correct||0);const qid=escapeHtml(String(q.id||''));return`<div class="bk-card" style="margin-bottom:10px"><div style="display:flex;justify-content:space-between;align-items:flex-start;gap:10px;margin-bottom:10px"><div><div style="display:flex;flex-wrap:wrap;gap:5px;margin-bottom:6px"><span class="bk-badge bk-bl">${escapeHtml(q.exam||'—')}</span><span class="bk-badge bk-pu">${escapeHtml(q.subject||'—')}</span><span class="bk-badge bk-cy">${escapeHtml(q.topic||'—')}</span><span class="bk-badge ${q.status==='failed'?'bk-rd':'bk-am'}">${q.status}</span></div><div style="font-size:13px;color:var(--text);line-height:1.5">${escapeHtml(q.question||'')}</div></div><div class="bk-btn-row" style="flex-shrink:0"><button class="bk-btn bk-btn-g" onclick="bkApproveQ('${qid}');bkNav('review')">✓ Approve</button><button class="bk-btn bk-btn-r" onclick="bkRemoveQ('${qid}');bkNav('review')">✕ Reject</button><button class="bk-btn" onclick="bkInspect('${qid}')">👁</button></div></div><div style="display:grid;grid-template-columns:1fr 1fr;gap:5px;margin:8px 0">${(q.options||[]).slice(0,4).map((o,i)=>`<div class="bk-opt${i===corr?' bk-correct':''}">${labs[i]}. ${escapeHtml(o||'')}</div>`).join('')}</div><div class="bk-expl">${escapeHtml(q.explanation||'(no explanation)')}</div>${fails.length?`<div style="margin-top:8px;padding:7px 10px;background:rgba(239,68,68,.07);border:1px solid rgba(239,68,68,.18);border-radius:var(--r)">${fails.map(c=>`<div style="font-size:11px;color:var(--red)">${c.ico} ${c.lbl}</div>`).join('')}</div>`:''}</div>`;}).join('');
+}
+
+function bkAfterSettings(){
+  const div=document.getElementById('bk-exam-overrides');if(!div)return;
+  div.innerHTML=BK_EXAMS.map(ex=>`<div class="bk-set-row"><div><div class="bk-set-lbl">${ex}</div></div><div style="display:flex;align-items:center;gap:8px;flex-shrink:0"><input type="range" class="bk-range" min="-1" max="100" step="5" id="bk-ov-${ex}" value="${BK.settings.examOverrides[ex]??-1}" oninput="bkOvLabel('${ex}')"><span class="bk-range-val" id="bk-ovl-${ex}">${BK.settings.examOverrides[ex]!=null&&BK.settings.examOverrides[ex]>=0?BK.settings.examOverrides[ex]+'%':'Global'}</span></div></div>`).join('');
+  bkGenCode();
+}
+
+function bkAfterCoverage(){
+  bkPopDrops();
+  const exam=document.getElementById('bk-cov-exam')?.value||'';
+  const data=BK.bank.filter(q=>q.status==='approved'&&(!exam||q.exam===exam));
+  const cc=document.getElementById('bk-cov-count');if(cc)cc.textContent=data.length+' approved';
+  const byES={};data.forEach(q=>{if(!byES[q.exam])byES[q.exam]={};if(!byES[q.exam][q.subject])byES[q.exam][q.subject]={};byES[q.exam][q.subject][q.topic]=(byES[q.exam][q.subject][q.topic]||0)+1;});
+  const grid=document.getElementById('bk-coverage-grid');if(!grid)return;
+  grid.innerHTML=Object.entries(byES).map(([ex,subs])=>`<div class="bk-card" style="margin-bottom:12px"><div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px"><span class="bk-badge bk-bl" style="font-size:12px;padding:4px 12px">${escapeHtml(ex)}</span><span style="font-size:11px;color:var(--t2)">${Object.values(subs).reduce((a,s)=>a+Object.values(s).reduce((b,n)=>b+n,0),0)} total</span></div>${Object.entries(subs).map(([sub,chs])=>`<div style="margin-bottom:10px"><div style="font-size:10px;font-weight:700;color:var(--t2);text-transform:uppercase;letter-spacing:.6px;margin-bottom:6px">${escapeHtml(sub)}</div><div style="display:flex;flex-wrap:wrap;gap:5px">${Object.entries(chs).map(([ch,n])=>`<span class="bk-badge ${n>=10?'bk-gr':n>=5?'bk-am':'bk-rd'}" title="${n} questions">${escapeHtml(ch)} <b>${n}</b></span>`).join('')}</div></div>`).join('')}</div>`).join('');
+}
+
+function bkAfterAntiRepeat(){
+  const mr=BK.settings.maxReuse||10;const ts=BK.bank.reduce((a,q)=>a+(q.uses||0),0);
+  const S=(id,v)=>{const e=document.getElementById(id);if(e)e.textContent=v;};
+  S('ar-serves',ts);S('ar-unique',BK.bank.filter(q=>(q.uses||0)>0).length);
+  S('ar-retiring',BK.bank.filter(q=>(q.uses||0)>=mr*0.8&&(q.uses||0)<mr).length);
+  S('ar-retired',BK.bank.filter(q=>(q.uses||0)>=mr).length);
+  const sqlEl=document.getElementById('bk-schema-sql');
+  if(sqlEl)sqlEl.textContent=`-- Run in Supabase SQL Editor\n\n-- 1. seen_questions (cross-device anti-repeat)\nCREATE TABLE IF NOT EXISTS public.seen_questions (\n  id          uuid DEFAULT gen_random_uuid() PRIMARY KEY,\n  user_id     uuid NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,\n  exam        text NOT NULL,\n  fingerprint text NOT NULL,\n  seen_at     timestamptz DEFAULT now(),\n  UNIQUE (user_id, exam, fingerprint)\n);\nALTER TABLE public.seen_questions ENABLE ROW LEVEL SECURITY;\nCREATE POLICY "own" ON public.seen_questions\n  USING (auth.uid()=user_id) WITH CHECK (auth.uid()=user_id);\nCREATE INDEX IF NOT EXISTS idx_seen_ue ON public.seen_questions(user_id, exam);\n\n-- 2. Enhanced question_bank columns\nALTER TABLE public.question_bank\n  ADD COLUMN IF NOT EXISTS exam           text,\n  ADD COLUMN IF NOT EXISTS chapter        text,\n  ADD COLUMN IF NOT EXISTS use_count      integer DEFAULT 0,\n  ADD COLUMN IF NOT EXISTS correct_count  integer DEFAULT 0,\n  ADD COLUMN IF NOT EXISTS status         text DEFAULT 'approved',\n  ADD COLUMN IF NOT EXISTS qc_passed      boolean DEFAULT true,\n  ADD COLUMN IF NOT EXISTS dual_correct   boolean DEFAULT false,\n  ADD COLUMN IF NOT EXISTS english_variant text DEFAULT 'british',\n  ADD COLUMN IF NOT EXISTS approved_by    uuid,\n  ADD COLUMN IF NOT EXISTS approved_at    timestamptz;\nCREATE INDEX IF NOT EXISTS idx_qb_exam_sub ON public.question_bank(exam, subject);\nCREATE INDEX IF NOT EXISTS idx_qb_status   ON public.question_bank(status);`;
+}
+
+function bkAfterAnalytics(){
+  bkPopDrops();
+  const exam=document.getElementById('bk-an-exam')?.value||'';
+  const flag=document.getElementById('bk-an-flag')?.value||'';
+  let data=BK.bank.filter(q=>q.status==='approved'&&(q.uses||0)>0);
+  if(exam)data=data.filter(q=>q.exam===exam);
+  if(flag==='suspect')data=data.filter(q=>(q.correctRate||0)<40&&(q.uses||0)>=5);
+  if(flag==='top')data=data.filter(q=>(q.correctRate||0)>=80);
+  data.sort((a,b)=>(b.uses||0)-(a.uses||0));
+  const tbody=document.getElementById('bk-analytics-body');if(!tbody)return;
+  tbody.innerHTML=data.slice(0,100).map(q=>{const rc=(q.correctRate||0)>=60?'var(--green)':(q.correctRate||0)>=40?'var(--amber)':'var(--red)';const suspect=(q.correctRate||0)<40&&(q.uses||0)>=5;const qid=escapeHtml(String(q.id||''));return`<tr><td class="bk-qstem" style="max-width:240px" title="${escapeHtml(q.question)}">${escapeHtml((q.question||'').slice(0,55))}…</td><td><span class="bk-badge bk-bl">${escapeHtml(q.exam||'—')}</span></td><td style="font-size:11px">${escapeHtml(q.subject||'—')}</td><td style="font-size:11px">${escapeHtml(q.topic||'—')}</td><td style="font-family:var(--mono);font-size:11px">${q.uses||0}</td><td style="font-weight:700;color:${rc}">${q.correctRate||0}%</td><td style="font-family:var(--mono);font-size:11px">${q.avgTime||0}s</td><td>${suspect?'<span class="bk-badge bk-rd">⚠ Suspect</span>':(q.correctRate||0)>=80?'<span class="bk-badge bk-gr">🌟 Top</span>':'<span class="bk-badge">Normal</span>'}</td><td><button class="bk-btn" style="padding:3px 8px" onclick="bkInspect('${qid}')">👁</button></td></tr>`;}).join('');
+}
+
+// ── Browse / Filter ──
+function bkFilterApply(){
+  const search=(document.getElementById('bk-f-search')?.value||'').toLowerCase();
+  const exam=document.getElementById('bk-f-exam')?.value||'';
+  const sub=document.getElementById('bk-f-subject')?.value||'';
+  const diff=document.getElementById('bk-f-diff')?.value||'';
+  const status=document.getElementById('bk-f-status')?.value||'';
+  BK.filtered=BK.bank.filter(q=>{if(exam&&q.exam!==exam)return false;if(sub&&q.subject!==sub)return false;if(diff&&q.difficulty!==diff)return false;if(status&&q.status!==status)return false;if(search&&!String(q.question||'').toLowerCase().includes(search))return false;return true;});
+  BK.page=0;bkRenderBrowse();bkPopDrops();
+}
+function bkClearFilter(){['bk-f-search','bk-f-exam','bk-f-subject','bk-f-diff','bk-f-status'].forEach(id=>{const e=document.getElementById(id);if(e)e.value='';});bkFilterApply();}
+
+function bkRenderBrowse(){
+  const total=BK.filtered.length;const fc=document.getElementById('bk-f-count');if(fc)fc.textContent=total+' questions';
+  const start=BK.page*BK.pageSize;const page=BK.filtered.slice(start,start+BK.pageSize);
+  const tbody=document.getElementById('bk-browse-body');if(!tbody)return;
+  tbody.innerHTML=page.map((q,i)=>{const idx=start+i+1;const sb_=q.status==='approved'?'bk-gr':q.status==='pending'?'bk-am':'bk-rd';const db_=q.difficulty==='hard'?'bk-rd':q.difficulty==='easy'?'bk-gr':'bk-am';const rc=(q.correctRate||0)>=60?'var(--green)':(q.correctRate||0)>=40?'var(--amber)':'var(--red)';const qid=escapeHtml(String(q.id||''));return`<tr><td style="font-family:var(--mono);font-size:11px;color:var(--t3)">${idx}</td><td class="bk-qstem" title="${escapeHtml(q.question)}">${escapeHtml((q.question||'').slice(0,65))}${(q.question||'').length>65?'…':''}</td><td><span class="bk-badge bk-bl">${escapeHtml(q.exam||'—')}</span></td><td style="font-size:11px;color:var(--t2)">${escapeHtml(q.subject||'—')}</td><td style="font-size:11px;color:var(--t2)">${escapeHtml(q.topic||'—')}</td><td><span class="bk-badge ${db_}">${q.difficulty||'medium'}</span></td><td><span class="bk-badge ${sb_}">${q.status||'approved'}</span></td><td style="font-family:var(--mono);font-size:11px;color:var(--t2)">${q.uses||0}×</td><td style="font-weight:700;color:${rc}">${q.correctRate||0}%</td><td><div class="bk-btn-row"><button class="bk-btn" style="padding:3px 8px" onclick="bkInspect('${qid}')">👁</button>${q.status!=='approved'?`<button class="bk-btn bk-btn-g" style="padding:3px 8px" onclick="bkApproveQ('${qid}')">✓</button>`:''}<button class="bk-btn bk-btn-r" style="padding:3px 8px" onclick="bkRemoveQ('${qid}')">✕</button></div></td></tr>`;}).join('');
+  const pages=Math.ceil(total/BK.pageSize);const pag=document.getElementById('bk-browse-pag');
+  if(pag)pag.innerHTML=`<span>Page ${BK.page+1} of ${Math.max(1,pages)}</span><button class="bk-btn" style="padding:4px 10px" onclick="BK.page=Math.max(0,BK.page-1);bkRenderBrowse()" ${BK.page===0?'disabled':''}>← Prev</button><button class="bk-btn" style="padding:4px 10px" onclick="BK.page=Math.min(Math.ceil(BK.filtered.length/BK.pageSize)-1,BK.page+1);bkRenderBrowse()" ${BK.page>=pages-1?'disabled':''}>Next →</button>`;
+}
+
+// ── Inspect ──
+function bkInspect(id){
+  const q=BK.bank.find(x=>String(x.id||'')===String(id));if(!q){showToast('Not found','error');return;}
+  const labs=['A','B','C','D'];const corr=Number(q.correct||0);const checks=bkRunQC(q);
+  const sb_=q.status==='approved'?'bk-gr':q.status==='pending'?'bk-am':'bk-rd';const qid=escapeHtml(String(q.id||''));
+  document.getElementById('bk-inspect-body').innerHTML=`<div class="bk-modal-title">Question Inspection</div><div style="display:flex;flex-wrap:wrap;gap:5px;margin-bottom:12px"><span class="bk-badge bk-bl">${escapeHtml(q.exam||'—')}</span><span class="bk-badge bk-pu">${escapeHtml(q.subject||'—')}</span><span class="bk-badge bk-cy">${escapeHtml(q.topic||'—')}</span><span class="bk-badge ${q.difficulty==='hard'?'bk-rd':q.difficulty==='easy'?'bk-gr':'bk-am'}">${q.difficulty||'medium'}</span><span class="bk-badge ${sb_}">${q.status||'approved'}</span></div><div class="bk-lbl">Question Stem</div><div style="font-size:13px;color:var(--text);line-height:1.6;margin-bottom:12px;padding:10px;background:var(--s3);border-radius:var(--r)">${escapeHtml(q.question||'')}</div><div class="bk-lbl">Options</div><div style="display:grid;grid-template-columns:1fr 1fr;gap:5px;margin-bottom:12px">${(q.options||[]).slice(0,4).map((o,i)=>`<div class="bk-opt${i===corr?' bk-correct':''}">${labs[i]}. ${escapeHtml(o||'')}${i===corr?' ✓':''}</div>`).join('')}</div><div class="bk-lbl">Explanation</div><div class="bk-expl" style="margin-bottom:12px">${escapeHtml(q.explanation||'(none)')}</div><div class="bk-lbl">QC Results</div>${checks.map(c=>`<div class="bk-qc-row" style="margin-bottom:3px"><span class="bk-qc-ico">${c.ico}</span><span class="bk-qc-lbl" style="flex:1">${c.lbl}</span><span class="bk-qc-res ${c.pass?'bk-qc-pass':'bk-qc-fail'}">${c.pass?'✓ Pass':'✗ Fail'}</span></div>`).join('')}<div style="margin-top:10px;font-size:11px;color:var(--t3)">Used: <b style="color:var(--text)">${q.uses||0}×</b> · Correct: <b style="color:var(--text)">${q.correctRate||0}%</b></div><div class="bk-btn-row" style="margin-top:14px">${q.status!=='approved'?`<button class="bk-btn bk-btn-g" onclick="bkApproveQ('${qid}');bkCloseInspect()">✓ Approve</button>`:''}<button class="bk-btn bk-btn-r" onclick="bkRemoveQ('${qid}');bkCloseInspect()">Remove</button><button class="bk-btn" onclick="bkCloseInspect()">Close</button></div>`;
+  document.getElementById('bk-modal-inspect').classList.add('bk-open');
+}
+function bkCloseInspect(){document.getElementById('bk-modal-inspect').classList.remove('bk-open');}
+
+// ── Approve / Remove ──
+function bkApproveQ(id){const q=BK.bank.find(x=>String(x.id||'')===id);if(!q)return;q.status='approved';if(sb)sb.from('question_bank').update({status:'approved'}).eq('id',id).catch(()=>{});bkSyncStats();showToast('Approved ✓','success');}
+function bkRemoveQ(id){const q=BK.bank.find(x=>String(x.id||'')===id);if(!q)return;q.status='failed';if(sb)sb.from('question_bank').update({status:'failed'}).eq('id',id).catch(()=>{});bkSyncStats();showToast('Removed','success');}
+function bkApproveAllSafe(){BK.bank.filter(q=>q.status==='pending'&&bkRunQC(q).every(c=>c.pass)).forEach(q=>{q.status='approved';if(sb)sb.from('question_bank').update({status:'approved'}).eq('id',q.id).catch(()=>{});});bkNav('review');bkSyncStats();showToast('Safe questions approved','success');}
+function bkRejectAllFailed(){BK.bank.filter(q=>q.status==='failed').forEach(q=>{if(sb)sb.from('question_bank').update({status:'failed'}).eq('id',q.id).catch(()=>{});});bkNav('review');bkSyncStats();showToast('Failed questions rejected','success');}
+
+// ── Batch QC ──
+async function bkBatchQC(){
+  const prog=document.getElementById('bk-qc-progress');const fill=document.getElementById('bk-qc-fill');const txt=document.getElementById('bk-qc-txt');const res=document.getElementById('bk-qc-results');
+  if(prog)prog.style.display='block';let pass=0,fail=0;
+  for(let i=0;i<BK.bank.length;i++){const q=BK.bank[i];const anyFail=bkRunQC(q).some(c=>!c.pass);if(anyFail){fail++;q.status='failed';}else{pass++;if(q.status==='failed')q.status='approved';}const pct=Math.round((i+1)/BK.bank.length*100);if(fill)fill.style.width=pct+'%';if(txt)txt.textContent=`${i+1}/${BK.bank.length} — ✓${pass} ✗${fail}`;if(i%30===0)await new Promise(r=>setTimeout(r,0));}
+  if(prog)prog.style.display='none';if(res)res.innerHTML=`<div style="display:flex;gap:8px"><div class="bk-stat" style="flex:1"><div class="bk-stat-n" style="color:var(--green)">${pass}</div><div class="bk-stat-l">Passed</div></div><div class="bk-stat" style="flex:1"><div class="bk-stat-n" style="color:var(--red)">${fail}</div><div class="bk-stat-l">Failed</div></div></div>`;
+  bkSyncStats();showToast(`QC done: ${pass} passed, ${fail} failed`,'success');
+}
+function bkExportFailed(){const failed=BK.bank.filter(q=>q.status==='failed');const rows=[['id','exam','subject','topic','question','correct','status'].join(','),...failed.map(q=>[q.id,q.exam,q.subject,q.topic,`"${(q.question||'').replace(/"/g,'""')}"`,q.correct,q.status].join(','))].join('\n');const a=document.createElement('a');a.href='data:text/csv;charset=utf-8,'+encodeURIComponent(rows);a.download='qc_failed.csv';a.click();showToast('Exported '+failed.length,'success');}
+
+// ── Add / Import ──
+function bkAddTab(tab){['manual','json','csv'].forEach(t=>{const p=document.getElementById('bk-panel-'+t);if(p)p.style.display=t===tab?'block':'none';const b=document.getElementById('bk-atab-'+t);if(b)b.className=t===tab?'bk-add-tab bk-add-active':'bk-add-tab';});}
+function bkSyncSubs(){const ex=document.getElementById('bk-m-exam')?.value||'';const sub=document.getElementById('bk-m-subject');if(!sub)return;sub.innerHTML='<option value="">Select subject…</option>';(BK_SUBS[ex]||[]).forEach(s=>sub.appendChild(new Option(s,s)));}
+
+function bkSaveQ(q){const ex=BK.bank.findIndex(x=>String(x.id)===String(q.id));if(ex>=0)BK.bank[ex]=q;else BK.bank.push(q);try{const local=JSON.parse(localStorage.getItem('question_bank_local')||'[]');const li=local.findIndex(x=>String(x?.id)===String(q.id));if(li>=0)local[li]=q;else local.push(q);localStorage.setItem('question_bank_local',JSON.stringify(local.slice(-2000)));}catch(_e){}if(sb)sb.from('question_bank').upsert({id:q.id,subject:q.subject,topic:q.topic,exam:q.exam,difficulty:q.difficulty,question:q.question,options:q.options,correct:q.correct,explanation:q.explanation,status:q.status,created_by:USER?.id||null}).catch(()=>{});}
+
+function bkFP(q){try{const sub=String(q?.subject||'').trim();const top=String(q?.topic||'').trim();const stem=String(q?.question||'').trim();const opts=(q?.options||[]).map(x=>String(x||'').trim()).join('|');let h=5381>>>0;const x=`${sub}||${top}||${stem}||${opts}`;for(let i=0;i<x.length;i++)h=((h<<5)+h+x.charCodeAt(i))>>>0;return String(h>>>0);}catch(_e){return String(Date.now());}}
+
+function bkSubmitManual(){
+  const G=id=>document.getElementById(id)?.value?.trim()||'';
+  const exam=G('bk-m-exam'),subject=G('bk-m-subject'),chapter=G('bk-m-chapter'),diff=G('bk-m-diff')||'medium';
+  const stem=G('bk-m-stem'),a=G('bk-m-a'),b=G('bk-m-b'),c=G('bk-m-c'),d=G('bk-m-d');
+  const correct=Number(G('bk-m-correct')||0),expl=G('bk-m-expl');
+  if(!exam||!subject||!chapter||!stem||!a||!b||!c||!d||!expl){showToast('Fill all required fields','error');return;}
+  const q={id:bkFP({subject,topic:chapter,question:stem,options:[a,b,c,d]}),exam,subject,topic:chapter,difficulty:diff,question:stem,options:[a,b,c,d],correct,explanation:expl,status:'pending',uses:0,correctRate:0,avgTime:0};
+  const checks=bkRunQC(q);const anyFail=checks.some(ch=>!ch.pass);q.status=anyFail?'pending':'approved';
+  bkSaveQ(q);
+  const res=document.getElementById('bk-m-qc-result');if(res)res.innerHTML=`<div style="font-size:12px;font-weight:700;color:${anyFail?'var(--amber)':'var(--green)'};margin-bottom:8px">${anyFail?'⚠ Added to Review Queue':'✓ Approved & Added to Bank'}</div>`+checks.map(ch=>`<div class="bk-qc-row" style="margin-bottom:3px"><span class="bk-qc-ico">${ch.ico}</span><span class="bk-qc-lbl" style="flex:1;font-size:11px">${ch.lbl}</span><span class="bk-qc-res ${ch.pass?'bk-qc-pass':'bk-qc-fail'}" style="font-size:11px">${ch.pass?'✓':'✗'}</span></div>`).join('');
+  const st=document.getElementById('bk-m-status');if(st)st.textContent=anyFail?'⚠ Needs Review':'✓ In Bank';
+  bkSyncStats();showToast(anyFail?'Added to review queue':'Added to bank ✓','success');
+}
+function bkClearManual(){['bk-m-exam','bk-m-subject','bk-m-chapter','bk-m-stem','bk-m-a','bk-m-b','bk-m-c','bk-m-d','bk-m-expl'].forEach(id=>{const e=document.getElementById(id);if(e)e.value='';});['bk-m-status','bk-m-qc-result'].forEach(id=>{const e=document.getElementById(id);if(e)e.innerHTML='';});}
+
+function bkImportJSON(){let arr;try{arr=JSON.parse(document.getElementById('bk-json-in')?.value||'[]');}catch(e){showToast('Invalid JSON','error');return;}if(!Array.isArray(arr)){showToast('Expected a JSON array','error');return;}let ok=0,fail=0;arr.forEach(raw=>{const q={...raw,id:bkFP({subject:raw.subject,topic:raw.topic,question:raw.question,options:raw.options||[]}),status:'pending',uses:0,correctRate:0};q.correct=Number(q.correct||0);const checks=bkRunQC(q);q.status=checks.every(c=>c.pass)?'approved':'pending';bkSaveQ(q);checks.every(c=>c.pass)?ok++:fail++;});const res=document.getElementById('bk-json-results');if(res)res.innerHTML=`<div style="display:flex;gap:8px"><div class="bk-stat" style="flex:1"><div class="bk-stat-n" style="color:var(--green)">${ok}</div><div class="bk-stat-l">Approved</div></div><div class="bk-stat" style="flex:1"><div class="bk-stat-n" style="color:var(--amber)">${fail}</div><div class="bk-stat-l">Review Queue</div></div></div>`;bkSyncStats();showToast(`Imported ${arr.length}: ${ok} approved, ${fail} need review`,'success');}
+function bkDownloadCSV(){const h='exam,subject,topic,question,option_a,option_b,option_c,option_d,correct,explanation,difficulty';const s='BITSAT,Physics,Kinematics,"A 2 kg block...","16 ms⁻¹","22 ms⁻¹","12 ms⁻¹","30 ms⁻¹",1,"Net force calculation...",medium';const a=document.createElement('a');a.href='data:text/csv;charset=utf-8,'+encodeURIComponent([h,s].join('\n'));a.download='question_bank_template.csv';a.click();showToast('Template downloaded','success');}
+function bkUploadCSV(input){const file=input.files?.[0];if(!file)return;const reader=new FileReader();reader.onload=e=>{const lines=e.target.result.split('\n').filter(Boolean);const headers=lines[0].split(',').map(h=>h.trim().toLowerCase());let ok=0,fail=0;lines.slice(1).forEach(line=>{const vals=line.match(/(".*?"|[^,]+)/g)||[];const row={};headers.forEach((h,i)=>{row[h]=(vals[i]||'').replace(/^"|"$/g,'').trim();});const q={id:bkFP({subject:row.subject,topic:row.topic,question:row.question,options:[row.option_a,row.option_b,row.option_c,row.option_d]}),exam:row.exam,subject:row.subject,topic:row.topic,question:row.question,options:[row.option_a,row.option_b,row.option_c,row.option_d],correct:Number(row.correct||0),explanation:row.explanation,difficulty:row.difficulty||'medium',status:'pending',uses:0,correctRate:0};const checks=bkRunQC(q);q.status=checks.every(c=>c.pass)?'approved':'pending';bkSaveQ(q);checks.every(c=>c.pass)?ok++:fail++;});const res=document.getElementById('bk-csv-results');if(res)res.innerHTML=`<p style="font-size:12px;color:var(--t2);margin-top:10px">Imported: <b style="color:var(--green)">${ok} approved</b>, <b style="color:var(--amber)">${fail} needs review</b></p>`;bkSyncStats();showToast(`CSV: ${ok} approved, ${fail} review`,'success');};reader.readAsText(file);}
+
+// ── Settings ──
+function bkRangeVal(inp,val,suf){const v=Number(document.getElementById(inp)?.value||0);const el=document.getElementById(val);if(el)el.textContent=v+suf;bkGenCode();}
+function bkOvLabel(ex){const v=Number(document.getElementById('bk-ov-'+ex)?.value??-1);const el=document.getElementById('bk-ovl-'+ex);if(el)el.textContent=v===-1?'Global':v+'%';bkGenCode();}
+function bkGenCode(){const gp=Number(document.getElementById('bk-s-global')?.value??40);const mb=Number(document.getElementById('bk-s-min')?.value??30);const mr=Number(document.getElementById('bk-s-reuse')?.value??10);const nr=document.getElementById('bk-s-norepeat')?.checked??true;const sh=document.getElementById('bk-s-shuffle')?.checked??true;const ph=document.getElementById('bk-s-prefhard')?.checked??true;const ar=document.getElementById('bk-s-autoretire')?.checked??true;const ov={};BK_EXAMS.forEach(ex=>{const v=Number(document.getElementById('bk-ov-'+ex)?.value??-1);if(v>=0)ov[ex]=v;});const el=document.getElementById('bk-settings-code');if(el)el.textContent=`"bank": {\n  "global_pct": ${gp},\n  "min_bank_size": ${mb},\n  "max_reuse": ${mr},\n  "no_repeat_per_student": ${nr},\n  "shuffle_options": ${sh},\n  "prefer_bank_for_hard": ${ph},\n  "auto_flag_low_accuracy": ${ar},\n  "accuracy_flag_threshold": 0.40,\n  "accuracy_flag_min_uses": 20,\n  "exam_overrides": ${JSON.stringify(ov,null,2)}\n}`;}
+function bkSaveSettings(){BK.settings.globalPct=Number(document.getElementById('bk-s-global')?.value??40);BK.settings.minBank=Number(document.getElementById('bk-s-min')?.value??30);BK.settings.maxReuse=Number(document.getElementById('bk-s-reuse')?.value??10);BK.settings.noRepeat=document.getElementById('bk-s-norepeat')?.checked??true;BK.settings.shuffle=document.getElementById('bk-s-shuffle')?.checked??true;BK.settings.preferHard=document.getElementById('bk-s-prefhard')?.checked??true;BK.settings.autoRetire=document.getElementById('bk-s-autoretire')?.checked??true;try{const s=JSON.parse(localStorage.getItem('app_settings')||'{}');if(!s.bank)s.bank={};Object.assign(s.bank,{global_pct:BK.settings.globalPct,min_bank_size:BK.settings.minBank,max_reuse:BK.settings.maxReuse});localStorage.setItem('app_settings',JSON.stringify(s));}catch(_e){}bkSyncStats();showToast('Settings saved ✓','success');}
+function bkResetSettings(){BK.settings={globalPct:40,minBank:30,maxReuse:10,noRepeat:true,shuffle:true,preferHard:true,autoRetire:true,examOverrides:{}};bkNav('settings');showToast('Settings reset','success');}
+
+// ── Navigation helpers ──
+function goAdmin(){localStorage.setItem('rg_session_state',JSON.stringify({user:USER,profile:PROFILE,settings:APP_SETTINGS}));window.open('admin.html','_self');}
+function goHome(){window.open('index.html','_self');}
+
+initBank();
+</script>
+</body>
+</html>

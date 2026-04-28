@@ -1,0 +1,4 @@
+# Canonical site: https://www.rankgate.in (matches Netlify primary domain)
+http://rankgate.in/*       https://www.rankgate.in/:splat  301!
+http://www.rankgate.in/*   https://www.rankgate.in/:splat  301!
+https://rankgate.in/*      https://www.rankgate.in/:splat  301!

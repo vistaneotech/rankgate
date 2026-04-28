@@ -1,0 +1,16 @@
+[build]
+  publish = "."
+  functions = "netlify/functions"
+
+# If questions still time out in production, raise the function time limit in the Netlify UI
+# (Site settings → Functions → Function timeout) so generate-question can finish verify + model calls.
+
+# Ensure Netlify uses Node 18+ (fetch support)
+[build.environment]
+  NODE_VERSION = "18"
+
+# Optional: Netlify can invoke this on a schedule (GET/POST behavior depends on Netlify version).
+# Recommended: use `.github/workflows/bank-cron-daily.yml` or any external cron POST with BANK_CRON_SECRET.
+# [functions.bank-cron]
+#   schedule = "0 4 * * *"
+

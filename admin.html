@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="color-scheme" content="dark light">
+<title>Admin Console — Rank Gate</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#060810;--s1:#0d1117;--s2:#161b27;--s3:#1e2535;--s4:#252d3e;
+  --b1:rgba(148,163,184,.06);--b2:rgba(148,163,184,.12);--b3:rgba(148,163,184,.22);
+  --blue:#3b82f6;--cyan:#06b6d4;--green:#22c55e;--red:#ef4444;
+  --amber:#f59e0b;--purple:#a855f7;--indigo:#6366f1;
+  --text:#e2e8f0;--t2:#94a3b8;--t3:#4b5563;
+  --r:10px;--r2:14px;--r3:20px;
+  --font:'Plus Jakarta Sans',system-ui,sans-serif;
+  --display:'Space Grotesk',system-ui,sans-serif;
+  --mono:'JetBrains Mono',ui-monospace,monospace;
+}
+html[data-theme="light"]{
+  --bg:#f7fafc;--s1:#fff;--s2:#f1f5f9;--s3:#eaf0f7;--s4:#e2e8f0;
+  --b1:rgba(15,23,42,.08);--b2:rgba(15,23,42,.14);--b3:rgba(15,23,42,.24);
+  --text:#0f172a;--t2:#475569;--t3:#64748b;
+}
+html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--font);overflow-x:hidden}
+::-webkit-scrollbar{width:3px}::-webkit-scrollbar-track{background:var(--s1)}::-webkit-scrollbar-thumb{background:var(--b3);border-radius:2px}
+
+/* ── Layout ── */
+.adm-shell{display:flex;flex-direction:column;height:100vh}
+.adm-topbar{height:52px;background:var(--s1);border-bottom:1px solid var(--b1);display:flex;align-items:center;justify-content:space-between;padding:0 20px;flex-shrink:0;position:sticky;top:0;z-index:80}
+.adm-topbar-left{display:flex;align-items:center;gap:10px}
+.adm-brand{font-family:var(--display);font-weight:800;font-size:.95rem;color:var(--text)}
+.adm-breadcrumb{font-size:.8rem;color:var(--t3)}
+.adm-topbar-right{display:flex;align-items:center;gap:10px}
+.adm-body{display:flex;flex:1;overflow:hidden}
+
+/* ── Sidebar ── */
+.adm-sidebar{width:210px;background:var(--s1);border-right:1px solid var(--b1);display:flex;flex-direction:column;flex-shrink:0;overflow-y:auto}
+.adm-sb-logo{padding:16px 16px 10px;border-bottom:1px solid var(--b1)}
+.adm-sb-title{font-family:var(--display);font-weight:800;font-size:.88rem;color:var(--text)}
+.adm-sb-sub{font-size:10px;color:var(--t3);letter-spacing:.8px;text-transform:uppercase;margin-top:2px}
+.adm-nav{flex:1;padding:10px 8px}
+.adm-nav-sec{font-size:9px;font-weight:700;color:var(--t3);letter-spacing:1.4px;text-transform:uppercase;padding:10px 8px 5px}
+.adm-nav-btn{display:flex;align-items:center;gap:8px;padding:8px 10px;border-radius:var(--r);cursor:pointer;color:var(--t2);font-size:12px;font-weight:500;margin-bottom:2px;border:none;background:transparent;width:100%;text-align:left;transition:all .15s}
+.adm-nav-btn:hover{background:var(--b1);color:var(--text)}
+.adm-nav-btn.adm-active{background:rgba(59,130,246,.1);color:var(--blue);border:1px solid rgba(59,130,246,.2)}
+.adm-nav-ico{width:16px;text-align:center;font-size:13px;flex-shrink:0}
+.adm-nav-badge{margin-left:auto;font-size:9px;font-weight:700;padding:1px 6px;border-radius:99px;background:rgba(59,130,246,.2);color:var(--blue)}
+.adm-nav-badge.w{background:rgba(245,158,11,.2);color:var(--amber)}
+.adm-sb-foot{padding:12px 14px;border-top:1px solid var(--b1);font-size:11px;color:var(--t3)}
+
+/* ── Main ── */
+.adm-main{flex:1;overflow-y:auto}
+.adm-main-inner{padding:22px 24px;max-width:1400px}
+
+/* ── Buttons ── */
+.pg-btn{display:inline-flex;align-items:center;gap:5px;padding:5px 12px;border:1px solid var(--b2);border-radius:var(--r);background:transparent;color:var(--t2);font-family:var(--font);font-size:12px;font-weight:500;cursor:pointer;transition:all .15s}
+.pg-btn:hover{border-color:var(--b3);color:var(--text)}
+.pg-btn-p{background:linear-gradient(135deg,var(--blue),var(--cyan));border-color:transparent;color:#fff;font-weight:600}
+.pg-btn-p:hover{opacity:.9}
+.pg-btn-cy{background:rgba(6,182,212,.08);border-color:rgba(6,182,212,.22);color:var(--cyan)}
+
+/* ── Reuse index.html component styles ── */
+.icard{background:var(--s2);border:1px solid var(--b1);border-radius:var(--r2);padding:16px;margin-bottom:14px}
+.ititle{font-family:var(--display);font-weight:700;font-size:.85rem;margin-bottom:8px;color:var(--text)}
+.ibody{font-size:12px;color:var(--t2);line-height:1.6}
+.spin{width:24px;height:24px;border:2px solid var(--b2);border-top-color:var(--blue);border-radius:50%;animation:spin .7s linear infinite;display:block}
+@keyframes spin{to{transform:rotate(360deg)}}
+.stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:10px;margin-bottom:14px}
+.stat-card{background:var(--s2);border:1px solid var(--b1);border-radius:var(--r2);padding:14px;text-align:center}
+.stat-n{font-family:var(--display);font-weight:800;font-size:1.4rem}
+.stat-l{font-size:10px;color:var(--t3);text-transform:uppercase;letter-spacing:.6px;margin-top:4px}
+.marks-table{width:100%;border-collapse:collapse;font-size:12px}
+.marks-table th{background:var(--s3);color:var(--t2);font-weight:600;font-size:10px;text-transform:uppercase;letter-spacing:.6px;padding:9px 12px;text-align:left;border-bottom:1px solid var(--b1)}
+.marks-table td{padding:9px 12px;border-bottom:1px solid var(--b1);vertical-align:middle}
+.marks-table tr:last-child td{border-bottom:none}
+.marks-table .pos{color:var(--green);font-family:var(--mono);font-weight:600}
+.marks-table .neg{color:var(--red);font-family:var(--mono);font-weight:600}
+.marks-table .neu{color:var(--t3);font-family:var(--mono)}
+.btn{display:inline-flex;align-items:center;gap:5px;padding:6px 12px;border:1px solid var(--b2);border-radius:var(--r);background:transparent;color:var(--t2);font-family:var(--font);font-size:12px;cursor:pointer;transition:all .15s}
+.btn:hover{border-color:var(--b3);color:var(--text)}
+.btn-p{background:linear-gradient(135deg,var(--blue),var(--cyan));border-color:transparent;color:#fff;font-weight:600}
+.ntab{padding:6px 14px;border:none;background:transparent;color:var(--t2);font-family:var(--font);font-size:13px;font-weight:500;cursor:pointer;border-radius:var(--r);transition:all .2s}
+.ntab.active{background:var(--s2);color:var(--text)}
+.inp{width:100%;padding:9px 12px;background:var(--s2);border:1px solid var(--b2);border-radius:var(--r);color:var(--text);font-family:var(--font);font-size:14px;outline:none;transition:border-color .2s}
+.inp:focus{border-color:var(--blue)}
+.inp-wrap{margin-bottom:1rem}
+.inp-label{font-size:11px;font-weight:600;color:var(--t3);text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;display:block}
+.dash-hero{padding:20px 0 16px;border-bottom:1px solid var(--b1);margin-bottom:20px}
+.dash-greeting{font-family:var(--display);font-weight:800;font-size:1.4rem;color:var(--text)}
+.dash-sub{font-size:13px;color:var(--t2);margin-top:4px}
+.hist-item{display:flex;align-items:center;gap:16px;padding:12px 0;border-bottom:1px solid var(--b1)}
+.hist-score{font-family:var(--display);font-weight:800;font-size:1.5rem;min-width:52px}
+.hist-meta{flex:1}
+.hist-title{font-size:13px;font-weight:600;margin-bottom:2px}
+.hist-sub{font-size:11px;color:var(--t2)}
+.progress-bar{height:5px;background:var(--s3);border-radius:3px;overflow:hidden}
+.progress-fill{height:100%;border-radius:3px}
+.toast{position:fixed;bottom:20px;right:20px;background:var(--s2);border:1px solid var(--b2);border-radius:var(--r);padding:12px 16px;font-size:13px;color:var(--text);z-index:9999;transform:translateY(80px);opacity:0;transition:all .3s;max-width:320px}
+.toast.show{transform:translateY(0);opacity:1}
+.toast.success{border-color:var(--green);color:var(--green)}
+.toast.error{border-color:var(--red);color:#f87171}
+code{font-family:var(--mono);font-size:11px;background:var(--s3);padding:1px 5px;border-radius:3px;color:var(--cyan)}
+@media(max-width:700px){.adm-sidebar{display:none}}
+</style>
+</head>
+<body>
+<div class="adm-shell">
+
+  <!-- Topbar -->
+  <div class="adm-topbar">
+    <div class="adm-topbar-left">
+      <button class="pg-btn" onclick="goHome()">← Dashboard</button>
+      <span class="adm-brand">Rank Gate</span>
+      <span class="adm-breadcrumb">/ Admin Console</span>
+    </div>
+    <div class="adm-topbar-right">
+      <span style="font-size:12px;color:var(--t2)" id="adm-username"></span>
+      <button class="pg-btn pg-btn-cy" onclick="window.open('bank.html','_self')">🗃️ Question Bank</button>
+      <button class="pg-btn" onclick="doSignOut()">Sign Out</button>
+    </div>
+  </div>
+
+  <div class="adm-body">
+    <!-- Sidebar -->
+    <nav class="adm-sidebar">
+      <div class="adm-sb-logo">
+        <div class="adm-sb-title">Admin Console</div>
+        <div class="adm-sb-sub">⚙️ Full Control</div>
+      </div>
+      <div class="adm-nav">
+        <div class="adm-nav-sec">Users</div>
+        <button class="adm-nav-btn adm-active" id="nb-users" onclick="admGo('users')"><span class="adm-nav-ico">👥</span>Registered Users<span class="adm-nav-badge" id="badge-users">0</span></button>
+        <div class="adm-nav-sec">Analytics</div>
+        <button class="adm-nav-btn" id="nb-reports" onclick="admGo('reports')"><span class="adm-nav-ico">🧾</span>Mock Test Reports</button>
+        <button class="adm-nav-btn" id="nb-leaderboard" onclick="admGo('leaderboard')"><span class="adm-nav-ico">🏆</span>Leaderboard</button>
+        <div class="adm-nav-sec">Configuration</div>
+        <button class="adm-nav-btn" id="nb-settings" onclick="admGo('settings')"><span class="adm-nav-ico">⚙️</span>App Settings</button>
+        <button class="adm-nav-btn" id="nb-review" onclick="admGo('review')"><span class="adm-nav-ico">✋</span>Human Review<span class="adm-nav-badge w" id="badge-review">0</span></button>
+        <div class="adm-nav-sec">Modules</div>
+        <button class="adm-nav-btn" onclick="window.open('bank.html','_self')" style="color:var(--cyan)"><span class="adm-nav-ico">🗃️</span>Question Bank ↗</button>
+      </div>
+      <div class="adm-sb-foot">
+        <div id="adm-foot-name" style="color:var(--t2);font-weight:600"></div>
+        <div style="margin-top:3px">Admin · Rank Gate 2026</div>
+      </div>
+    </nav>
+
+    <!-- Main content -->
+    <div class="adm-main">
+      <div class="adm-main-inner" id="adm-panel">
+        <div class="icard" style="text-align:center;padding:32px">
+          <div class="spin" style="margin:0 auto 12px"></div>
+          <div style="color:var(--t2);font-size:13px">Initialising admin console…</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<!-- Load Supabase -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<script src="app.js"></script>
+<script>
+// ── admin.html bootstrap ──
+// Restore shared state from localStorage (written by index.html before navigate)
+let USER=null, PROFILE=null, APP_SETTINGS={}, DB_SESSIONS=[];
+
+function _restoreState(){
+  try{
+    const raw=localStorage.getItem('rg_session_state');
+    if(!raw)return false;
+    const state=JSON.parse(raw);
+    USER=state.user||null;
+    PROFILE=state.profile||null;
+    APP_SETTINGS=state.settings||{};
+    return !!(USER&&PROFILE&&PROFILE.role==='admin');
+  }catch(_e){return false;}
+}
+
+function showToast(msg,type=''){
+  const t=document.getElementById('toast');
+  t.textContent=msg;t.className='toast'+(type?' '+type:'');t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),3500);
+}
+function escapeHtml(s){return String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+function fmtDateIN(d){try{return new Date(d).toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'});}catch(_e){return String(d||'');}}
+function shortenId(id){const s=String(id||'').trim();if(s.length<=12)return s||'—';return s.slice(0,6)+'…'+s.slice(-4);}
+function displayName(p){if(!p)return'—';if(typeof p==='string')return shortenId(p);const f=String(p.full_name||'').trim();if(f)return f;const e=String(p.email||'').trim();if(e&&e.includes('@'))return e.split('@')[0];return shortenId(p.id);}
+function jsQuote(s){return String(s??'').replace(/\\/g,'\\\\').replace(/'/g,"\\'").replace(/\r/g,'\\r').replace(/\n/g,'\\n');}
+function nameForStudentId(st,sid){const p=st?.profilesById?.[sid];if(p)return displayName(p);const n=String(st?.namesByStudentId?.[sid]||'').trim();if(n)return n;const e=String(st?.emailsByStudentId?.[sid]||'').trim();if(e&&e.includes('@'))return e.split('@')[0];return shortenId(sid);}
+
+let sb=null;
+
+async function initAdmin(){
+  // 1. Restore state saved by index.html
+  const stateOk=_restoreState();
+
+  // 2. Init Supabase from app_settings in localStorage
+  try{
+    const settingsRaw=localStorage.getItem('app_settings');
+    const settings=settingsRaw?JSON.parse(settingsRaw):{};
+    const supabaseUrl=settings?.supabase?.url||'';
+    const supabaseKey=settings?.supabase?.anon_key||'';
+    if(supabaseUrl&&supabaseKey){
+      sb=supabase.createClient(supabaseUrl,supabaseKey);
+    }
+  }catch(_e){}
+
+  // 3. Verify session via Supabase if sb available
+  if(sb){
+    try{
+      const{data:{session}}=await sb.auth.getSession();
+      if(session?.user){
+        USER=session.user;
+        const{data:prof}=await sb.from('profiles').select('*').eq('id',USER.id).single();
+        if(prof)PROFILE=prof;
+      }
+    }catch(_e){}
+  }
+
+  // 4. Guard: must be admin
+  if(!USER||!PROFILE||PROFILE.role!=='admin'){
+    document.getElementById('adm-panel').innerHTML=`<div class="icard"><div class="ititle" style="color:var(--red)">Access Denied</div><div class="ibody">You must be signed in as an admin. <button class="btn" onclick="goHome()" style="margin-top:10px">← Go to Login</button></div></div>`;
+    return;
+  }
+
+  // 5. Set name labels
+  const name=PROFILE.full_name||USER.email||'Admin';
+  const un=document.getElementById('adm-username');if(un)un.textContent=name;
+  const fn=document.getElementById('adm-foot-name');if(fn)fn.textContent=name;
+
+  // 6. Boot theme
+  try{const th=localStorage.getItem('theme')||'dark';document.documentElement.setAttribute('data-theme',th);}catch(_e){}
+
+  // 7. Init __ADMIN state and load first view
+  window.__ADMIN={view:'users',days:30,loading:false,users:[],sessions:[],profilesById:{},namesByStudentId:{},emailsByStudentId:{},stats:null,reviewQueue:[]};
+  admGo('users');
+}
+
+function admGo(view){
+  if(!window.__ADMIN)window.__ADMIN={view:'users',days:30,loading:false,users:[],sessions:[],profilesById:{},namesByStudentId:{},emailsByStudentId:{},stats:null,reviewQueue:[]};
+  window.__ADMIN.view=view;
+  document.querySelectorAll('.adm-nav-btn').forEach(b=>b.classList.remove('adm-active'));
+  const nb=document.getElementById('nb-'+view);if(nb)nb.classList.add('adm-active');
+  _admLoad(view);
+}
+
+async function _admLoad(view){
+  const panel=document.getElementById('adm-panel');
+  panel.innerHTML=`<div class="icard" style="text-align:center;padding:24px"><div class="spin" style="margin:0 auto 10px"></div><div style="color:var(--t2);font-size:12px">Loading…</div></div>`;
+  try{
+    if(view==='users'){
+      await adminLoadUsers();
+      panel.innerHTML=`<div class="dash-hero"><div class="dash-greeting">👥 Registered Users</div></div>`+adminRenderUsers();
+      const badge=document.getElementById('badge-users');if(badge)badge.textContent=window.__ADMIN.stats?.total||0;
+    }else if(view==='reports'){
+      await adminLoadReports();
+      panel.innerHTML=`<div class="dash-hero"><div class="dash-greeting">🧾 Mock Test Reports</div></div>`+adminRenderReports();
+    }else if(view==='leaderboard'){
+      await adminLoadReports();
+      panel.innerHTML=`<div class="dash-hero"><div class="dash-greeting">🏆 Leaderboard</div></div>`+adminRenderLeaderboard();
+    }else if(view==='settings'){
+      panel.innerHTML=`<div class="dash-hero"><div class="dash-greeting">⚙️ App Settings</div></div>`+adminRenderSettings();
+    }else if(view==='review'){
+      await adminLoadReviewQueue();
+      panel.innerHTML=`<div class="dash-hero"><div class="dash-greeting">✋ Human Review Queue</div></div>`+adminRenderReviewQueue();
+      const badge=document.getElementById('badge-review');if(badge)badge.textContent=(window.__ADMIN.reviewQueue||[]).length;
+    }
+  }catch(e){
+    panel.innerHTML=`<div class="icard"><div class="ititle" style="color:var(--red)">Load failed</div><div class="ibody">${escapeHtml(String(e?.message||e||''))}</div></div>`;
+  }
+}
+
+function goHome(){
+  localStorage.removeItem('rg_session_state');
+  window.open('index.html','_self');
+}
+function doSignOut(){
+  if(sb)sb.auth.signOut().catch(()=>{});
+  localStorage.removeItem('rg_session_state');
+  window.open('index.html','_self');
+}
+
+// Stubs needed by admin render functions from app.js
+function showDash(){}
+function adminGo(v){admGo(v);}
+function adminRefresh(){admGo(window.__ADMIN?.view||'users');}
+function adminSetDays(v){if(window.__ADMIN)window.__ADMIN.days=Number(v)||30;}
+function adminSetLeaderboardExam(ex){if(window.__ADMIN)window.__ADMIN.leaderExam=ex;const panel=document.getElementById('adm-panel');if(panel)panel.innerHTML=adminRenderLeaderboard();}
+function viewStudentProgress(sid,name){
+  adminLoadStudentSessions?.(sid).then(sessions=>{
+    const best=sessions.length?Math.max(...sessions.map(s=>s.scaled_390)):0;
+    const avg=sessions.length?Math.round(sessions.reduce((a,s)=>a+s.scaled_390,0)/sessions.length):0;
+    document.getElementById('adm-panel').innerHTML=`<div style="display:flex;align-items:center;gap:12px;margin-bottom:1.5rem"><button class="btn" onclick="admGo('leaderboard')">← Back</button><div style="font-family:var(--display);font-weight:800;font-size:1.2rem">📊 ${escapeHtml(name)}'s Progress</div></div><div class="stats-grid"><div class="stat-card"><div class="stat-n" style="color:var(--amber)">${sessions.length}</div><div class="stat-l">Tests</div></div><div class="stat-card"><div class="stat-n" style="color:var(--green)">${best}</div><div class="stat-l">Best /390</div></div><div class="stat-card"><div class="stat-n" style="color:var(--blue)">${avg}</div><div class="stat-l">Average</div></div></div>${sessions.map(s=>{const pct=Math.round((s.scaled_390/390)*100);const col=pct>=78?'var(--green)':pct>=50?'var(--amber)':'var(--red)';return`<div class="hist-item"><div class="hist-score" style="color:${col}">${s.scaled_390}</div><div class="hist-meta"><div class="hist-title">Test #${s.session_num} · ${s.q_count}Q</div><div class="hist-sub">${new Date(s.created_at).toLocaleDateString('en-IN')} · Acc: ${s.accuracy}%</div><div class="progress-bar" style="margin-top:5px"><div class="progress-fill" style="width:${pct}%;background:${col}"></div></div></div></div>`;}).join('')}`;
+  }).catch(()=>showToast('Could not load sessions','error'));
+}
+function adminResolveReview(id,action){
+  if(!sb||!USER)return;
+  const act=action==='approve'?'approve':'reject';
+  (async()=>{
+    if(act==='approve'){
+      const{data,error}=await sb.from('question_review_queue').select('*').eq('id',id).single();
+      if(error){showToast(error.message,'error');return;}
+      const p=data.payload||{};
+      const q={...p,subject:data.subject||p.subject};
+      if(typeof saveQuestionToBank==='function') await saveQuestionToBank(q);
+      await sb.from('question_review_queue').update({status:'approved',decided_at:new Date().toISOString(),decided_by:USER.id}).eq('id',id);
+      showToast('Approved ✓','success');
+    }else{
+      await sb.from('question_review_queue').update({status:'rejected',decided_at:new Date().toISOString(),decided_by:USER.id}).eq('id',id);
+      showToast('Rejected','success');
+    }
+    await adminLoadReviewQueue();
+    document.getElementById('adm-panel').innerHTML=adminRenderReviewQueue();
+  })().catch(e=>showToast(String(e?.message||e),'error'));
+}
+function adminToggleProxy(){if(!APP_SETTINGS.api_proxy)APP_SETTINGS.api_proxy={enabled:false};APP_SETTINGS.api_proxy.enabled=!APP_SETTINGS.api_proxy.enabled;saveLocalSettings&&saveLocalSettings();admGo('settings');}
+function adminUpdateRatioLive(v){const a=Math.max(0,Math.min(100,Number(v)));const la=document.getElementById('ratioApiLbl');const lb=document.getElementById('ratioBankLbl');if(la)la.textContent=a+'%';if(lb)lb.textContent=(100-a)+'%';}
+function adminResetSettings(){APP_SETTINGS={};localStorage.removeItem('app_settings');admGo('settings');}
+async function adminSaveSettings(){
+  const a=String(document.getElementById('setAnthropicKey')?.value||'').trim();
+  const o=String(document.getElementById('setOpenAIKey')?.value||'').trim();
+  const bt=String(document.getElementById('setBitsatTrainer')?.value||'').trim();
+  if(!APP_SETTINGS.api_keys)APP_SETTINGS.api_keys={};
+  APP_SETTINGS.api_keys.anthropic=a;APP_SETTINGS.api_keys.openai=o;
+  if(!APP_SETTINGS.prompt_training)APP_SETTINGS.prompt_training={};
+  APP_SETTINGS.prompt_training.bitsat=bt.slice(0,2200);
+  try{localStorage.setItem('app_settings',JSON.stringify(APP_SETTINGS));}catch(_e){}
+  if(sb&&USER){
+    try{await sb.from('app_settings').upsert({id:'global',settings_json:APP_SETTINGS,updated_by:USER.id});showToast('Settings saved ✓','success');}
+    catch(e){showToast('Saved locally. Remote: '+String(e?.message||'failed'),'error');}
+  }else showToast('Saved locally ✓','success');
+}
+
+// Stub for functions called from adminRender* that reference index.html screens
+function loadStudentSessions(sid){return sb?sb.from('test_sessions').select('*').eq('student_id',sid).order('created_at',{ascending:false}).limit(200).then(r=>r.data||[]):Promise.resolve([]);}
+
+initAdmin();
+</script>
+</body>
+</html>

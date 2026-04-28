@@ -1,0 +1,938 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="color-scheme" content="dark light">
+<title>Question Bank Populator — Rank Gate Admin</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#060810;--s1:#0d1117;--s2:#161b27;--s3:#1e2535;--s4:#252d3e;
+  --b1:rgba(148,163,184,.07);--b2:rgba(148,163,184,.13);--b3:rgba(148,163,184,.24);
+  --blue:#3b82f6;--cyan:#06b6d4;--green:#22c55e;--red:#ef4444;--amber:#f59e0b;--purple:#a855f7;
+  --text:#e2e8f0;--t2:#94a3b8;--t3:#4b5563;
+  --r:8px;--r2:12px;--r3:18px;
+  --font:'Plus Jakarta Sans',system-ui,sans-serif;
+  --display:'Space Grotesk',system-ui,sans-serif;
+  --mono:'JetBrains Mono',ui-monospace,monospace;
+}
+html[data-theme=light]{
+  --bg:#f4f6fa;--s1:#fff;--s2:#f1f5f9;--s3:#e8edf5;--s4:#dde4ef;
+  --b1:rgba(15,23,42,.07);--b2:rgba(15,23,42,.13);--b3:rgba(15,23,42,.22);
+  --text:#0f172a;--t2:#475569;--t3:#94a3b8;
+}
+html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--font);overflow-x:hidden}
+::-webkit-scrollbar{width:4px}::-webkit-scrollbar-thumb{background:var(--b2);border-radius:2px}
+
+/* ── Shell ── */
+.shell{display:flex;flex-direction:column;min-height:100vh}
+.topbar{height:52px;background:var(--s1);border-bottom:1px solid var(--b1);display:flex;align-items:center;justify-content:space-between;padding:0 20px;flex-shrink:0;position:sticky;top:0;z-index:80}
+.brand{font-family:var(--display);font-weight:700;font-size:.95rem;color:var(--text);display:flex;align-items:center;gap:10px}
+.brand-badge{font-size:10px;font-weight:600;padding:2px 8px;border-radius:99px;background:rgba(59,130,246,.15);color:var(--blue);letter-spacing:.5px;text-transform:uppercase}
+.topbar-right{display:flex;align-items:center;gap:8px}
+.theme-btn{padding:5px 10px;border:1px solid var(--b2);border-radius:var(--r);background:transparent;color:var(--t2);font-size:12px;cursor:pointer}
+.theme-btn:hover{background:var(--b1)}
+
+/* ── Body layout ── */
+.body-row{display:flex;flex:1;overflow:hidden}
+.sidebar{width:220px;background:var(--s1);border-right:1px solid var(--b1);display:flex;flex-direction:column;flex-shrink:0;overflow-y:auto}
+.sb-section{font-size:9px;font-weight:700;color:var(--t3);letter-spacing:1.2px;text-transform:uppercase;padding:14px 14px 5px}
+.sb-btn{display:flex;align-items:center;gap:8px;padding:8px 12px;border-radius:var(--r);cursor:pointer;color:var(--t2);font-size:12px;font-weight:500;margin:1px 8px;border:none;background:transparent;width:calc(100% - 16px);text-align:left;transition:all .15s}
+.sb-btn:hover{background:var(--b1);color:var(--text)}
+.sb-btn.active{background:rgba(59,130,246,.1);color:var(--blue);border:1px solid rgba(59,130,246,.2)}
+.sb-ico{font-size:14px;width:18px;text-align:center;flex-shrink:0}
+.sb-badge{margin-left:auto;font-size:9px;font-weight:700;padding:1px 6px;border-radius:99px;background:rgba(34,197,94,.15);color:var(--green)}
+.sb-badge.warn{background:rgba(245,158,11,.15);color:var(--amber)}
+
+.main{flex:1;overflow-y:auto}
+.main-inner{padding:22px 24px;max-width:1200px}
+.panel{display:none}.panel.shown{display:block}
+
+/* ── Cards ── */
+.card{background:var(--s2);border:1px solid var(--b1);border-radius:var(--r2);padding:16px;margin-bottom:12px}
+.card-title{font-family:var(--display);font-weight:700;font-size:.82rem;color:var(--text);margin-bottom:10px;display:flex;align-items:center;gap:6px}
+.card-sub{font-size:11px;color:var(--t2);line-height:1.5;margin-bottom:10px}
+
+/* ── Stats ── */
+.stats-row{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-bottom:16px}
+.stat{background:var(--s2);border:1px solid var(--b1);border-radius:var(--r2);padding:12px;text-align:center}
+.stat-n{font-family:var(--display);font-weight:800;font-size:1.4rem;line-height:1;margin-bottom:3px}
+.stat-l{font-size:9px;color:var(--t3);text-transform:uppercase;letter-spacing:.6px}
+
+/* ── Form ── */
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px}
+.form-row3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:10px}
+.form-g{margin-bottom:10px}
+.lbl{font-size:10px;font-weight:700;color:var(--t3);text-transform:uppercase;letter-spacing:.6px;margin-bottom:4px;display:block}
+.inp{width:100%;padding:7px 10px;background:var(--s3);border:1px solid var(--b2);border-radius:var(--r);color:var(--text);font-family:var(--font);font-size:13px;outline:none;transition:border-color .15s}
+.inp:focus{border-color:var(--blue)}
+select.inp{cursor:pointer}
+.inp-pass{font-family:var(--mono);font-size:11px;letter-spacing:.5px}
+
+/* ── Buttons ── */
+.btn-row{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px}
+.btn{display:inline-flex;align-items:center;gap:5px;padding:6px 14px;border:1px solid var(--b2);border-radius:var(--r);background:transparent;color:var(--t2);font-family:var(--font);font-size:12px;font-weight:500;cursor:pointer;transition:all .15s}
+.btn:hover{border-color:var(--b3);color:var(--text);background:var(--b1)}
+.btn:disabled{opacity:.38;cursor:not-allowed}
+.btn-p{background:linear-gradient(135deg,var(--blue),var(--cyan));border-color:transparent;color:#fff;font-weight:600}
+.btn-p:hover{opacity:.9}
+.btn-g{border-color:rgba(34,197,94,.3);color:var(--green)}.btn-g:hover{background:rgba(34,197,94,.07)}
+.btn-r{border-color:rgba(239,68,68,.3);color:var(--red)}.btn-r:hover{background:rgba(239,68,68,.07)}
+.btn-sm{padding:3px 9px;font-size:10px}
+
+/* ── Chips / subject selector ── */
+.chips{display:flex;gap:5px;flex-wrap:wrap;margin-top:4px}
+.chip{padding:4px 11px;border:1px solid var(--b2);border-radius:99px;font-size:11px;font-weight:500;cursor:pointer;color:var(--t2);background:transparent;transition:all .15s;white-space:nowrap}
+.chip:hover{border-color:var(--b3);color:var(--text)}
+.chip.sel{border-color:var(--blue);background:rgba(59,130,246,.1);color:var(--blue)}
+.chip.sel-g{border-color:var(--green);background:rgba(34,197,94,.1);color:var(--green)}
+
+/* ── Progress & Log ── */
+.prog-wrap{background:var(--s3);border-radius:99px;height:6px;overflow:hidden;margin:8px 0}
+.prog-bar{height:100%;border-radius:99px;background:linear-gradient(90deg,var(--blue),var(--cyan));transition:width .35s}
+.log-box{background:var(--s1);border:1px solid var(--b1);border-radius:var(--r);padding:10px;max-height:280px;overflow-y:auto;font-family:var(--mono);font-size:11px;line-height:1.7}
+.log-ok{color:var(--green)}.log-err{color:var(--red)}.log-warn{color:var(--amber)}.log-info{color:var(--t2)}
+
+/* ── Question cards ── */
+.q-list{display:flex;flex-direction:column;gap:8px;max-height:500px;overflow-y:auto}
+.q-card{background:var(--s1);border:1px solid var(--b1);border-radius:var(--r);padding:12px}
+.q-head{display:flex;align-items:flex-start;gap:8px;margin-bottom:6px}
+.q-idx{font-size:10px;color:var(--t3);white-space:nowrap;padding-top:2px;min-width:22px}
+.q-stem{font-size:12px;line-height:1.55;flex:1}
+.q-opts{display:grid;grid-template-columns:1fr 1fr;gap:3px;margin:6px 0}
+.q-opt{font-size:11px;color:var(--t2);padding:2px 6px;border-radius:4px}
+.q-opt.cor{background:rgba(34,197,94,.12);color:var(--green);font-weight:600}
+.q-meta{display:flex;gap:4px;flex-wrap:wrap;margin-top:5px;align-items:center}
+.q-expl{font-size:11px;color:var(--t2);border-top:1px solid var(--b1);margin-top:6px;padding-top:6px;line-height:1.55}
+.fail-msg{font-size:11px;color:var(--red);margin-top:5px;line-height:1.4}
+
+/* ── Badges ── */
+.bdg{display:inline-flex;align-items:center;padding:2px 7px;border-radius:4px;font-size:10px;font-weight:600;letter-spacing:.2px}
+.bdg-pass{background:rgba(34,197,94,.12);color:var(--green)}
+.bdg-fail{background:rgba(239,68,68,.12);color:var(--red)}
+.bdg-skip{background:rgba(148,163,184,.12);color:var(--t2)}
+.bdg-easy{background:rgba(34,197,94,.1);color:var(--green)}
+.bdg-medium{background:rgba(245,158,11,.1);color:var(--amber)}
+.bdg-hard{background:rgba(239,68,68,.1);color:var(--red)}
+.bdg-sub{background:rgba(59,130,246,.1);color:var(--blue)}
+.bdg-topic{background:rgba(148,163,184,.08);color:var(--t2)}
+
+/* ── Status dot ── */
+.dot{width:7px;height:7px;border-radius:50%;display:inline-block;vertical-align:middle;margin-right:4px}
+.dot-live{background:var(--green);animation:blink 1.4s infinite}
+.dot-idle{background:var(--t3)}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
+
+/* ── Verify layer list ── */
+.vlay{display:flex;flex-direction:column;gap:0}
+.vlay-row{display:flex;align-items:flex-start;gap:8px;padding:7px 0;border-bottom:1px solid var(--b1)}
+.vlay-row:last-child{border-bottom:none}
+.vlay-lbl{flex:1;font-size:12px;color:var(--text);line-height:1.4}
+.vlay-sub{font-size:10px;color:var(--t3);margin-top:2px}
+
+/* ── Alert ── */
+.alert{padding:9px 12px;border-radius:var(--r);font-size:12px;line-height:1.5;margin-bottom:10px}
+.alert-info{background:rgba(59,130,246,.07);border:1px solid rgba(59,130,246,.2);color:#93c5fd}
+.alert-warn{background:rgba(245,158,11,.07);border:1px solid rgba(245,158,11,.2);color:#fbbf24}
+html[data-theme=light] .alert-info{color:#1d4ed8}
+html[data-theme=light] .alert-warn{color:#92400e}
+
+/* ── Empty ── */
+.empty{text-align:center;padding:2.5rem 1rem;color:var(--t3);font-size:13px}
+
+/* ── Table ── */
+.tbl-wrap{overflow-x:auto;border-radius:var(--r);border:1px solid var(--b1);margin-bottom:10px}
+.tbl{width:100%;border-collapse:collapse;font-size:12px}
+.tbl th{background:var(--s3);color:var(--t2);font-weight:600;font-size:10px;text-transform:uppercase;letter-spacing:.5px;padding:8px 10px;text-align:left;border-bottom:1px solid var(--b1)}
+.tbl td{padding:8px 10px;border-bottom:1px solid var(--b1);vertical-align:top}
+.tbl tr:last-child td{border-bottom:none}
+.tbl tr:hover td{background:rgba(255,255,255,.015)}
+</style>
+</head>
+<body>
+
+<div class="shell">
+
+<!-- TOP BAR -->
+<div class="topbar">
+  <div class="brand">
+    Rank Gate
+    <span class="brand-badge">Question Bank Populator</span>
+  </div>
+  <div class="topbar-right">
+    <span id="stat-live" style="font-size:11px;color:var(--t2)"><span class="dot dot-idle" id="top-dot"></span><span id="top-txt">Idle</span></span>
+    <button class="theme-btn" onclick="toggleTheme()">☀️ / 🌙</button>
+  </div>
+</div>
+
+<div class="body-row">
+
+<!-- SIDEBAR -->
+<div class="sidebar">
+  <div class="sb-section">Menu</div>
+  <button class="sb-btn active" onclick="nav('generate',this)"><span class="sb-ico">⚙️</span>Generate<span class="sb-badge warn" id="sb-pending">0</span></button>
+  <button class="sb-btn" onclick="nav('bank',this)"><span class="sb-ico">🗃️</span>Bank Browser<span class="sb-badge" id="sb-total">0</span></button>
+  <button class="sb-btn" onclick="nav('guide',this)"><span class="sb-ico">📐</span>Architecture</button>
+
+  <div class="sb-section" style="margin-top:12px">Bank by exam</div>
+  <div id="sb-exam-counts" style="padding:0 8px 8px;font-size:11px;color:var(--t3);line-height:2">—</div>
+</div>
+
+<!-- MAIN -->
+<div class="main">
+<div class="main-inner">
+
+<!-- ── STATS ── -->
+<div class="stats-row">
+  <div class="stat"><div class="stat-n" id="st-total">0</div><div class="stat-l">In Bank</div></div>
+  <div class="stat"><div class="stat-n" id="st-pass" style="color:var(--green)">0</div><div class="stat-l">Verified</div></div>
+  <div class="stat"><div class="stat-n" id="st-fail" style="color:var(--red)">0</div><div class="stat-l">Rejected</div></div>
+  <div class="stat"><div class="stat-n" id="st-session" style="color:var(--blue)">0</div><div class="stat-l">This Session</div></div>
+  <div class="stat"><div class="stat-n" id="st-exams" style="color:var(--amber)">0</div><div class="stat-l">Exams Covered</div></div>
+</div>
+
+<!-- ══ GENERATE PANEL ══ -->
+<div id="panel-generate" class="panel shown">
+
+  <div class="card">
+    <div class="card-title">🔗 Netlify Proxy Connection</div>
+    <div class="alert alert-info">All questions are generated via <strong>/.netlify/functions/generate-question</strong> — same proxy your exam uses. No API key is stored here. Provide your Supabase session token to authenticate.</div>
+    <div class="form-row">
+      <div class="form-g">
+        <span class="lbl">Supabase access token</span>
+        <input class="inp inp-pass" type="password" id="cfg-token" placeholder="Paste access_token from DevTools → Application → Local Storage → sb-…-auth-token">
+      </div>
+      <div class="form-g">
+        <span class="lbl">Proxy origin (blank = this page's origin)</span>
+        <input class="inp" type="text" id="cfg-origin" placeholder="https://www.rankgate.in">
+      </div>
+    </div>
+    <div style="font-size:11px;color:var(--t3)">How to get token: sign into rankgate.in → DevTools (F12) → Application → Local Storage → key <code>sb-vikgpdkxpmxclsepgclk-auth-token</code> → copy the <code>access_token</code> field value.</div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">⚙️ Generation Config</div>
+
+    <div class="form-row">
+      <div class="form-g">
+        <span class="lbl">Exam</span>
+        <select class="inp" id="cfg-exam" onchange="onExamChange()">
+          <optgroup label="Indian Entrance">
+            <option value="BITSAT">BITSAT</option>
+            <option value="JEE_MAIN">JEE Main</option>
+            <option value="JEE_ADV">JEE Advanced</option>
+            <option value="NEET">NEET</option>
+            <option value="CUET">CUET</option>
+            <option value="IISER_IAT">IISER IAT</option>
+            <option value="NEST">NEST</option>
+            <option value="ISI">ISI</option>
+            <option value="IPMAT">IPMAT</option>
+            <option value="JIPMAT">JIPMAT</option>
+            <option value="CAT">CAT</option>
+            <option value="GATE_2027">GATE 2027</option>
+          </optgroup>
+          <optgroup label="International">
+            <option value="SAT">SAT</option>
+            <option value="ACT">ACT</option>
+            <option value="IELTS">IELTS</option>
+            <option value="TOEFL">TOEFL</option>
+            <option value="GRE">GRE</option>
+            <option value="GMAT">GMAT</option>
+          </optgroup>
+        </select>
+      </div>
+      <div class="form-g">
+        <span class="lbl">Questions per batch</span>
+        <input class="inp" type="number" id="cfg-count" value="10" min="1" max="100">
+      </div>
+    </div>
+
+    <div class="form-g">
+      <span class="lbl">Subjects (auto-set by exam — click to toggle)</span>
+      <div class="chips" id="sub-chips"></div>
+    </div>
+
+    <div class="form-row3">
+      <div class="form-g"><span class="lbl">Easy %</span><input class="inp" type="number" id="cfg-easy" value="25" min="0" max="100"></div>
+      <div class="form-g"><span class="lbl">Medium %</span><input class="inp" type="number" id="cfg-medium" value="50" min="0" max="100"></div>
+      <div class="form-g"><span class="lbl">Hard %</span><input class="inp" type="number" id="cfg-hard" value="25" min="0" max="100"></div>
+    </div>
+
+    <div class="form-row">
+      <div class="form-g"><span class="lbl">Delay between Qs (ms)</span><input class="inp" type="number" id="cfg-delay" value="1200" min="400" max="8000"></div>
+      <div class="form-g"><span class="lbl">Retries per question</span><input class="inp" type="number" id="cfg-retries" value="3" min="1" max="5"></div>
+    </div>
+
+    <div class="card-title" style="margin-top:8px">🛡️ Verification Layers</div>
+    <div class="vlay">
+      <div class="vlay-row"><input type="checkbox" id="v1" checked style="flex-shrink:0;margin-top:2px"><label for="v1" class="vlay-lbl">Layer 1 — Stem completeness<div class="vlay-sub">Stem ≥ 20 chars, no placeholder/undefined text</div></label></div>
+      <div class="vlay-row"><input type="checkbox" id="v2" checked style="flex-shrink:0;margin-top:2px"><label for="v2" class="vlay-lbl">Layer 2 — Distinct options<div class="vlay-sub">All 4 options unique, non-empty, ≥ 2 chars each</div></label></div>
+      <div class="vlay-row"><input type="checkbox" id="v3" checked style="flex-shrink:0;margin-top:2px"><label for="v3" class="vlay-lbl">Layer 3 — Correct index bounds<div class="vlay-sub">correct ∈ {0, 1, 2, 3}</div></label></div>
+      <div class="vlay-row"><input type="checkbox" id="v4" checked style="flex-shrink:0;margin-top:2px"><label for="v4" class="vlay-lbl">Layer 4 — Explanation quality<div class="vlay-sub">≥ 30 chars, not identical to stem</div></label></div>
+      <div class="vlay-row"><input type="checkbox" id="v5" checked style="flex-shrink:0;margin-top:2px"><label for="v5" class="vlay-lbl">Layer 5 — Answer-key letter match<div class="vlay-sub">Explanation must not name a conflicting A/B/C/D letter</div></label></div>
+      <div class="vlay-row"><input type="checkbox" id="v6" checked style="flex-shrink:0;margin-top:2px"><label for="v6" class="vlay-lbl">Layer 6 — Numeric self-check (STEM only)<div class="vlay-sub">Correct option's numeric value must appear in explanation</div></label></div>
+      <div class="vlay-row"><input type="checkbox" id="v7" checked style="flex-shrink:0;margin-top:2px"><label for="v7" class="vlay-lbl">Layer 7 — AI secondary verifier<div class="vlay-sub">Independent re-solve via proxy at temperature=0; rejects on high-confidence key mismatch</div></label></div>
+    </div>
+
+    <div class="btn-row">
+      <button class="btn btn-p" id="btn-start" onclick="startGen()">▶ Generate &amp; Verify Batch</button>
+      <button class="btn btn-r" id="btn-stop" onclick="stopGen()" disabled>■ Stop</button>
+      <button class="btn" onclick="clearLog()">Clear log</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+      <div class="card-title" style="margin:0">📋 Generation Log</div>
+      <span id="prog-lbl" style="font-size:11px;color:var(--t2)">0 / 0</span>
+    </div>
+    <div class="prog-wrap"><div class="prog-bar" id="prog-bar" style="width:0%"></div></div>
+    <div class="log-box" id="log-box"></div>
+  </div>
+
+  <div class="card" id="batch-card" style="display:none">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+      <div class="card-title" style="margin:0">Batch result — <span id="batch-summary"></span></div>
+      <div class="btn-row" style="margin:0">
+        <button class="btn btn-g" onclick="commitApproved()">✓ Save verified to bank</button>
+        <button class="btn btn-r" onclick="discardBatch()">✕ Discard</button>
+      </div>
+    </div>
+    <div class="q-list" id="batch-list"></div>
+  </div>
+
+</div>
+
+<!-- ══ BANK PANEL ══ -->
+<div id="panel-bank" class="panel">
+  <div class="card">
+    <div class="card-title">🗃️ Bank Browser</div>
+    <div class="form-row">
+      <div class="form-g">
+        <span class="lbl">Filter by exam</span>
+        <select class="inp" id="bk-exam" onchange="renderBank()">
+          <option value="">All exams</option>
+          <option value="BITSAT">BITSAT</option>
+          <option value="JEE_MAIN">JEE Main</option>
+          <option value="JEE_ADV">JEE Advanced</option>
+          <option value="NEET">NEET</option>
+          <option value="CUET">CUET</option>
+          <option value="IISER_IAT">IISER IAT</option>
+          <option value="NEST">NEST</option>
+          <option value="ISI">ISI</option>
+          <option value="IPMAT">IPMAT</option>
+          <option value="JIPMAT">JIPMAT</option>
+          <option value="CAT">CAT</option>
+          <option value="GATE_2027">GATE 2027</option>
+          <option value="SAT">SAT</option>
+          <option value="ACT">ACT</option>
+          <option value="IELTS">IELTS</option>
+          <option value="TOEFL">TOEFL</option>
+          <option value="GRE">GRE</option>
+          <option value="GMAT">GMAT</option>
+        </select>
+      </div>
+      <div class="form-g">
+        <span class="lbl">Filter by difficulty</span>
+        <select class="inp" id="bk-diff" onchange="renderBank()">
+          <option value="">All levels</option>
+          <option value="easy">Easy</option>
+          <option value="medium">Medium</option>
+          <option value="hard">Hard</option>
+        </select>
+      </div>
+    </div>
+    <div class="btn-row" style="margin-top:4px">
+      <button class="btn btn-r" onclick="clearBank()">Clear bank</button>
+      <button class="btn" onclick="exportBank()">Export JSON</button>
+    </div>
+  </div>
+  <div id="bank-list"><div class="empty">Bank is empty — generate questions first</div></div>
+</div>
+
+<!-- ══ GUIDE PANEL ══ -->
+<div id="panel-guide" class="panel">
+  <div class="card">
+    <div class="card-title">📐 Architecture: Bank-First Question Loading</div>
+    <div class="card-sub">This tool pre-populates the Supabase <code>question_bank</code> table so the exam engine never calls the AI API during a live student exam.</div>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px">
+      <div style="padding:12px;border:1px solid rgba(239,68,68,.25);border-radius:var(--r);background:rgba(239,68,68,.05)">
+        <div style="font-weight:700;color:var(--red);font-size:12px;margin-bottom:6px">❌ Old flow (broken)</div>
+        <div style="font-size:11px;color:var(--t2);line-height:1.7">Student starts exam → API called live per question → question displayed immediately → no verification → wrong answers + slow loading (5–8s per question)</div>
+      </div>
+      <div style="padding:12px;border:1px solid rgba(34,197,94,.25);border-radius:var(--r);background:rgba(34,197,94,.05)">
+        <div style="font-weight:700;color:var(--green);font-size:12px;margin-bottom:6px">✅ New flow (correct)</div>
+        <div style="font-size:11px;color:var(--t2);line-height:1.7"><strong>Admin (this tool):</strong> API generates → 7-layer verify → bank<br><strong>Student exam:</strong> Load from bank only → instant, 100% verified, zero API latency</div>
+      </div>
+    </div>
+
+    <div class="card-title">🛡️ 7-Layer Verification Gate</div>
+    <div class="tbl-wrap">
+      <table class="tbl">
+        <thead><tr><th>Layer</th><th>Check</th><th>Rejects if</th><th>Applies to</th></tr></thead>
+        <tbody>
+          <tr><td style="color:var(--blue);font-weight:600">L1</td><td>Stem completeness</td><td>&lt; 20 chars or placeholder text</td><td>All</td></tr>
+          <tr><td style="color:var(--blue);font-weight:600">L2</td><td>Distinct options</td><td>Any 2 options identical or empty</td><td>All</td></tr>
+          <tr><td style="color:var(--blue);font-weight:600">L3</td><td>Correct index bounds</td><td>correct not in {0,1,2,3}</td><td>All</td></tr>
+          <tr><td style="color:var(--blue);font-weight:600">L4</td><td>Explanation quality</td><td>&lt; 30 chars or copy of stem</td><td>All</td></tr>
+          <tr><td style="color:var(--blue);font-weight:600">L5</td><td>Answer-key letter</td><td>Explanation names a different A/B/C/D</td><td>All</td></tr>
+          <tr><td style="color:var(--blue);font-weight:600">L6</td><td>Numeric self-check</td><td>Correct option value absent from explanation</td><td>STEM subjects</td></tr>
+          <tr><td style="color:var(--green);font-weight:600">L7</td><td>AI secondary verifier</td><td>High-confidence key disagreement</td><td>All (costs 1 extra API call)</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="card-title" style="margin-top:6px">📊 Recommended bank targets</div>
+    <div class="tbl-wrap">
+      <table class="tbl">
+        <thead><tr><th>Exam</th><th>Target</th><th>Subjects</th></tr></thead>
+        <tbody>
+          <tr><td>BITSAT</td><td>300 Physics · 300 Chem · 300 Math · 150 Eng · 150 LR</td><td>5</td></tr>
+          <tr><td>JEE Main / Advanced</td><td>300 each subject</td><td>3 (PCM)</td></tr>
+          <tr><td>NEET</td><td>300 Physics · 300 Chem · 500 Biology</td><td>3 (PCB)</td></tr>
+          <tr><td>CUET / IISER / NEST</td><td>200+ per subject</td><td>varies</td></tr>
+          <tr><td>SAT / ACT / GRE / GMAT</td><td>200+ per section</td><td>2–4</td></tr>
+          <tr><td>CAT / IPMAT / JIPMAT</td><td>200+ per section</td><td>3</td></tr>
+          <tr><td>GATE 2027</td><td>300+ per section</td><td>3</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="card-sub" style="margin-top:4px">Run batches of 20–50 per subject. Enable <strong>bank.enabled = true</strong> in admin settings so the exam engine serves from bank. The exam randomises option order at serve-time so the same bank row never looks identical across attempts.</div>
+  </div>
+</div>
+
+</div><!-- /main-inner -->
+</div><!-- /main -->
+</div><!-- /body-row -->
+</div><!-- /shell -->
+
+<script>
+// ════════════════════════════════════════════
+//  EXAM → SUBJECTS MAP (mirrors app.js exactly)
+// ════════════════════════════════════════════
+const EXAM_SUBJECTS = {
+  BITSAT:    ['Physics','Chemistry','Math','English','LR'],
+  JEE_MAIN:  ['Physics','Chemistry','Math'],
+  JEE_ADV:   ['Physics','Chemistry','Math'],
+  NEET:      ['Physics','Chemistry','Biology'],
+  CUET:      ['Physics','Chemistry','Math','Biology','Economics','History','Geography','Political Science','Accountancy','Business Studies','Computer Science','English','General'],
+  IISER_IAT: ['Physics','Chemistry','Math','Biology'],
+  NEST:      ['Physics','Chemistry','Math','Biology'],
+  ISI:       ['Math','General'],
+  IPMAT:     ['APT_QA','APT_DILR','APT_VAR'],
+  JIPMAT:    ['APT_QA','APT_DILR','APT_VAR'],
+  CAT:       ['CAT_VARC','CAT_DILR','CAT_QA'],
+  GATE_2027: ['GATE_GA','GATE_MATH','GATE_CORE'],
+  SAT:       ['SAT_RW','SAT_MATH'],
+  ACT:       ['ACT_ENG','ACT_MATH','ACT_READ','ACT_SCI'],
+  IELTS:     ['IELTS_LISTEN','IELTS_READ'],
+  TOEFL:     ['TOEFL_READ','TOEFL_LISTEN'],
+  GRE:       ['GRE_VERB','GRE_QUANT'],
+  GMAT:      ['GMAT_VERB','GMAT_QUANT','GMAT_DI'],
+};
+
+// Full topic pools (same as app.js TP)
+const TP = {
+  Physics:['Kinematics 1D','Kinematics 2D & Projectile','Newton Laws & FBD','Friction & Inclined Planes','Work-Energy Theorem','Momentum & Collisions','Rotational Motion & Torque','Moment of Inertia','Gravitation & Orbital Mechanics','Escape Velocity & Satellites','Simple Harmonic Motion','Mechanical Waves & Sound','Electrostatics & Coulomb Law','Gauss Law & Electric Field','Electric Potential & Capacitance','Current Electricity & Ohm Law','Kirchhoff Laws & Wheatstone','Magnetic Force on Charges','Biot-Savart & Ampere Law','EM Induction & Faraday','AC Circuits & Impedance','Electromagnetic Waves','Geometric Optics - Mirrors','Geometric Optics - Lenses','Wave Optics - Interference','Photoelectric Effect','Bohr Model & Spectral Series','Nuclear Physics & Radioactivity','Thermodynamics Laws','Kinetic Theory of Gases','Fluid Mechanics & Bernoulli','Elasticity & Stress-Strain','Surface Tension','Heat Transfer'],
+  Chemistry:['Atomic Structure & Quantum Numbers','Chemical Bonding - Ionic & Covalent','VSEPR & Molecular Geometry','Hybridisation sp sp2 sp3','Thermochemistry & Hess Law','Chemical Equilibrium & Le Chatelier','Ionic Equilibrium pH & Buffers','Electrochemistry & Nernst','Chemical Kinetics Rate Laws','Adsorption & Colloids','Coordination Chemistry & CFSE','Stereoisomerism - Optical & Geometric','Organic Mechanisms SN1 SN2','Alkenes Addition & Polymerisation','Alkynes & Cyclic Compounds','Aromatic Electrophilic Substitution','Aldehydes Ketones - Nucleophilic Addition','Carboxylic Acids & Derivatives','Amines & Diazonium','Polymers & Biomolecules','s-block Alkali Metals','p-block Group 15 16 17','p-block Group 13 14 Noble Gases','d-block Transition Metals','Colligative Properties','Solid State & Crystal Structure','Purification & Identification','Metallurgy & Extraction'],
+  Math:['Limits & Continuity','L Hopital Rule','Differentiation - Chain Rule','Derivatives - Maxima Minima','Rolle & LMVT Theorems','Indefinite Integration - Substitution','Definite Integration & Properties','Area Bounded by Curves','Differential Equations - Separable','Differential Equations - Linear','Matrices Operations & Rank','Determinants & Applications','Probability & Bayes Theorem','Binomial Distribution','Vectors Dot & Cross Product','3D Geometry - Lines','3D Geometry - Planes','Complex Numbers Polar Form','Roots of Unity','Permutations & Combinations','Binomial Theorem','Arithmetic Progressions','Geometric Progressions','Straight Lines & Angles','Circles - Tangent & Normal','Parabola & Properties','Ellipse & Hyperbola','Trigonometric Identities','Inverse Trigonometric Functions','Mathematical Reasoning'],
+  Biology:['Cell & Biomolecules','Genetics & Inheritance','Human Physiology','Plant Physiology','Ecology & Environment','Evolution & Diversity'],
+  English:['Synonyms in Context','Antonyms in Context','Word Analogies','Idioms & Phrases','One Word Substitution','Sentence Correction - Verb Agreement','Sentence Correction - Tense','Active & Passive Voice','Direct & Indirect Speech','Fill in Blanks - Prepositions','Reading Comprehension','Spotting Errors'],
+  LR:['Number Series - Arithmetic','Number Series - Geometric','Letter & Alphanumeric Series','Coding & Decoding','Blood Relations','Directions & Distances','Seating Arrangement - Linear','Seating Arrangement - Circular','Syllogisms - All Some None','Statement & Assumptions','Data Sufficiency','Analogy in Reasoning','Clock & Calendar','Venn Diagram Logic'],
+  General:['Number Series - Arithmetic','Coding & Decoding','Directions & Distances','Seating Arrangement - Linear','Syllogisms - All Some None','Data Sufficiency','Analogy in Reasoning','Clock & Calendar','Venn Diagram Logic'],
+  Economics:['Microeconomics Basics','Demand & Supply','National Income','Inflation & Money','Fiscal Policy','Statistics & Data Interpretation'],
+  History:['Ancient India','Medieval India','Modern India','World History Basics','Indian National Movement'],
+  Geography:['Physical Geography','Climate & Weather','Indian Geography','Maps & Coordinates','Resources & Industries'],
+  'Political Science':['Constitution Basics','Fundamental Rights','Parliament & Executive','Judiciary','International Relations'],
+  Accountancy:['Journal & Ledger','Trial Balance','Final Accounts','Depreciation','Cash Flow Basics'],
+  'Business Studies':['Principles of Management','Business Environment','Marketing Basics','Finance Basics','Entrepreneurship'],
+  'Computer Science':['Programming Basics','Data Structures Basics','DBMS Basics','Networks Basics','Operating Systems Basics'],
+  SAT_RW:['Grammar & Usage','Rhetorical Synthesis','Words in Context','Text Structure & Purpose','Transitions','Command of Evidence','Reading Comprehension'],
+  SAT_MATH:['Algebra','Advanced Math','Problem Solving & Data Analysis','Geometry & Trigonometry','Functions & Graphs','Linear Equations','Quadratics'],
+  ACT_ENG:['Grammar & Usage','Punctuation','Sentence Structure','Rhetoric & Style','Organization','Conciseness'],
+  ACT_MATH:['Pre-Algebra','Algebra','Geometry','Trigonometry','Statistics & Probability','Functions'],
+  ACT_READ:['Main Idea','Inference','Detail','Author Purpose','Vocabulary in Context','Comparisons'],
+  ACT_SCI:['Data Representation','Research Summaries','Conflicting Viewpoints','Graphs & Tables'],
+  IELTS_LISTEN:['Listening - MCQ','Listening - Matching','Listening - Form Completion'],
+  IELTS_READ:['Reading - MCQ','Reading - Matching','Reading - True/False/Not Given'],
+  TOEFL_READ:['Reading - Detail','Reading - Inference','Reading - Vocabulary','Reading - Insert Text'],
+  TOEFL_LISTEN:['Listening - Gist','Listening - Detail','Listening - Attitude','Listening - Organization'],
+  GRE_VERB:['Text Completion','Sentence Equivalence','Reading Comprehension','Vocabulary'],
+  GRE_QUANT:['Arithmetic','Algebra','Geometry','Data Analysis'],
+  GMAT_VERB:['Critical Reasoning','Reading Comprehension','Sentence Correction Style'],
+  GMAT_QUANT:['Arithmetic','Algebra','Word Problems','Rates & Work'],
+  GMAT_DI:['Table Analysis','Graphics Interpretation','Two-Part Analysis','Multi-Source Reasoning'],
+  CAT_VARC:['Reading Comprehension','Para-jumbles','Odd Sentence','Summary'],
+  CAT_DILR:['Bar/Line Charts','Tables','Seating Arrangement','Games & Tournaments','Venn/Set Logic'],
+  CAT_QA:['Arithmetic','Algebra','Geometry','Number System','Modern Math'],
+  APT_QA:['Arithmetic','Algebra Basics','Percentages','Ratio & Proportion','Time & Work','Time & Distance'],
+  APT_DILR:['Data Interpretation','Puzzles','Seating Arrangement','Syllogisms','Coding-Decoding'],
+  APT_VAR:['Vocabulary','Grammar','RC Basics','Sentence Correction','Para-jumbles'],
+  GATE_GA:['Verbal Ability','Numerical Ability','Analytical Reasoning','Data Interpretation'],
+  GATE_MATH:['Discrete Mathematics','Linear Algebra','Calculus','Probability & Statistics'],
+  GATE_CORE:['Programming','Data Structures','Algorithms','Operating Systems','DBMS','Computer Networks','Digital Logic','Compiler Basics'],
+};
+
+const NUMERIC_SUBS = new Set(['Physics','Chemistry','Math','Biology','SAT_MATH','ACT_MATH','GRE_QUANT','GMAT_QUANT','CAT_QA','APT_QA','GATE_MATH','GATE_CORE']);
+const DS = {easy:'Single concept, direct formula, 40-50 sec',medium:'Multi-step, 2-3 concepts, 65-80 sec',hard:'Complex 3+ concepts, tricky distractors, 90-120 sec'};
+
+// ════════════════════════════════════════════
+//  STATE
+// ════════════════════════════════════════════
+let BANK = [];
+let BATCH = [];
+let running = false;
+let stopFlag = false;
+let stats = {total:0,pass:0,fail:0,session:0};
+let selectedSubs = [];
+
+// ════════════════════════════════════════════
+//  THEME
+// ════════════════════════════════════════════
+function toggleTheme(){
+  const cur = document.documentElement.getAttribute('data-theme')||'dark';
+  const next = cur==='dark'?'light':'dark';
+  document.documentElement.setAttribute('data-theme',next);
+  try{localStorage.setItem('rg-populator-theme',next);}catch(_){}
+}
+(function(){
+  try{const t=localStorage.getItem('rg-populator-theme'); if(t) document.documentElement.setAttribute('data-theme',t);}catch(_){}
+})();
+
+// ════════════════════════════════════════════
+//  NAVIGATION
+// ════════════════════════════════════════════
+function nav(panel, btn){
+  document.querySelectorAll('.sb-btn').forEach(b=>b.classList.remove('active'));
+  if(btn) btn.classList.add('active');
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('shown'));
+  document.getElementById('panel-'+panel).classList.add('shown');
+  if(panel==='bank') renderBank();
+}
+
+// ════════════════════════════════════════════
+//  EXAM CHANGE → update subject chips
+// ════════════════════════════════════════════
+function onExamChange(){
+  const exam = document.getElementById('cfg-exam').value;
+  const subs = EXAM_SUBJECTS[exam]||[];
+  selectedSubs = [...subs];
+  renderSubChips(subs, selectedSubs);
+}
+function renderSubChips(allSubs, selected){
+  const grid = document.getElementById('sub-chips');
+  grid.innerHTML = allSubs.map(s=>`<div class="chip${selected.includes(s)?' sel':''}" data-sub="${esc(s)}" onclick="toggleSub(this)">${esc(s)}</div>`).join('');
+}
+function toggleSub(el){
+  el.classList.toggle('sel');
+  const s = el.dataset.sub;
+  if(el.classList.contains('sel')){ if(!selectedSubs.includes(s)) selectedSubs.push(s); }
+  else { selectedSubs = selectedSubs.filter(x=>x!==s); }
+}
+onExamChange(); // init on load
+
+// ════════════════════════════════════════════
+//  HELPERS
+// ════════════════════════════════════════════
+function esc(s){ return String(s||'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+function strHash32(str){ let h=5381>>>0; for(let i=0;i<str.length;i++) h=((h<<5)+h+str.charCodeAt(i))>>>0; return String(h>>>0); }
+function qFP(q){ return strHash32(String(q.exam||'')+'|'+String(q.subject||'')+'|'+String(q.topic||'')+'|'+String(q.question||'')+'|'+(q.options||[]).join('|')); }
+function normalizeCI(raw){
+  if(typeof raw==='number'){const t=Math.trunc(raw);if(t>=0&&t<=3)return t;if(t>=1&&t<=4)return t-1;}
+  const s=String(raw||'').trim().toUpperCase();
+  if(s.length===1&&s>='A'&&s<='D') return s.charCodeAt(0)-65;
+  const p=parseInt(s,10); if(!isNaN(p)){if(p>=0&&p<=3)return p;if(p>=1&&p<=4)return p-1;}
+  return 0;
+}
+function getDiff(i,total){
+  const eP=Number(document.getElementById('cfg-easy').value)/100;
+  const mP=Number(document.getElementById('cfg-medium').value)/100;
+  const r=i/Math.max(1,total);
+  return r<eP?'easy':r<eP+mP?'medium':'hard';
+}
+function sleep(ms){return new Promise(r=>setTimeout(r,ms));}
+
+// ════════════════════════════════════════════
+//  LOGGING & PROGRESS
+// ════════════════════════════════════════════
+function log(msg,type='info'){
+  const box=document.getElementById('log-box');
+  const d=document.createElement('div');
+  d.className='log-'+type;
+  const ts=new Date().toLocaleTimeString('en-IN',{hour12:false});
+  d.textContent='['+ts+'] '+msg;
+  box.appendChild(d);
+  box.scrollTop=box.scrollHeight;
+}
+function clearLog(){ document.getElementById('log-box').innerHTML=''; }
+function setProgress(done,total){
+  const pct=total?Math.round(done/total*100):0;
+  document.getElementById('prog-bar').style.width=pct+'%';
+  document.getElementById('prog-lbl').textContent=done+' / '+total;
+}
+function setStatusDot(live,txt){
+  document.getElementById('top-dot').className='dot '+(live?'dot-live':'dot-idle');
+  document.getElementById('top-txt').textContent=txt;
+}
+function updateStats(){
+  document.getElementById('st-total').textContent=stats.total;
+  document.getElementById('st-pass').textContent=stats.pass;
+  document.getElementById('st-fail').textContent=stats.fail;
+  document.getElementById('st-session').textContent=stats.session;
+  document.getElementById('sb-total').textContent=stats.total;
+  document.getElementById('sb-pending').textContent=BATCH.filter(q=>q&&q._ok&&!q._committed).length||0;
+  // exams covered
+  const exams=new Set(BANK.map(q=>q.exam).filter(Boolean));
+  document.getElementById('st-exams').textContent=exams.size;
+  // sidebar exam counts
+  const counts={};
+  BANK.forEach(q=>{const e=q.exam||'?';counts[e]=(counts[e]||0)+1;});
+  const el=document.getElementById('sb-exam-counts');
+  if(!Object.keys(counts).length){el.textContent='—';return;}
+  el.innerHTML=Object.entries(counts).sort((a,b)=>b[1]-a[1]).map(([e,n])=>`<span style="display:flex;justify-content:space-between"><span>${esc(e)}</span><strong>${n}</strong></span>`).join('');
+}
+
+// ════════════════════════════════════════════
+//  LOCAL STORAGE
+// ════════════════════════════════════════════
+function loadBank(){
+  try{const a=JSON.parse(localStorage.getItem('rg-bank-v3')||'[]');BANK=Array.isArray(a)?a:[];}catch(_){BANK=[];}
+  stats.total=BANK.length; stats.pass=BANK.filter(q=>q._ok).length;
+  updateStats();
+}
+function saveBank(){
+  try{localStorage.setItem('rg-bank-v3',JSON.stringify(BANK));}catch(_){}
+}
+
+// ════════════════════════════════════════════
+//  NETLIFY PROXY CALL
+// ════════════════════════════════════════════
+function getOrigin(){
+  const o=String(document.getElementById('cfg-origin').value||'').trim();
+  return o?o.replace(/\/$/,''):window.location.origin.replace(/\/$/,'');
+}
+function getToken(){
+  return String(document.getElementById('cfg-token').value||'').trim();
+}
+async function callProxy(prompt,maxTokens=950,temperature=0.7){
+  const token=getToken();
+  if(!token) throw new Error('No access token — paste your Supabase access_token in the Connection field');
+  const url=getOrigin()+'/.netlify/functions/generate-question';
+  const body={model:'claude-haiku-4-5-20251001',max_tokens:maxTokens,temperature,messages:[{role:'user',content:prompt}]};
+  const ctrl=new AbortController();
+  const to=setTimeout(()=>ctrl.abort(),65000);
+  let resp;
+  try{
+    resp=await fetch(url,{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+token},body:JSON.stringify({body}),signal:ctrl.signal});
+  }catch(e){
+    clearTimeout(to);
+    if(String(e?.name||'')==='AbortError') throw new Error('Proxy timed out (65s)');
+    throw new Error('Cannot reach '+url+'. Check origin and network.');
+  }
+  clearTimeout(to);
+  const txt=await resp.text();
+  if(!resp.ok){
+    let msg=txt.slice(0,200);
+    try{const j=JSON.parse(txt);msg=String(j.error||j.detail||msg).slice(0,200);}catch(_){}
+    throw new Error('Proxy HTTP '+resp.status+': '+msg);
+  }
+  const data=JSON.parse(txt);
+  const raw=data?.content?.[0]?.text;
+  if(!raw) throw new Error('Proxy returned empty content');
+  return raw;
+}
+
+// ════════════════════════════════════════════
+//  PROMPT BUILDER  (exam-aware)
+// ════════════════════════════════════════════
+function makePrompt(exam,sub,topic,diff,seed){
+  const corrEx=seed%4;
+  const numericSub=NUMERIC_SUBS.has(sub);
+  const langNote=(['SAT','ACT','GRE','GMAT','TOEFL'].includes(exam))?'Use American English spelling and conventions.':(['IELTS'].includes(exam))?'Use British/International English.':'Use British English spelling (colour, organise, etc.).';
+  const calcNote=numericSub?`\n- For ${sub}: show explicit step-by-step calculation in explanation.\n- The numeric value of the correct answer MUST appear in the explanation.`:'';
+  return `You are a ${exam} ${sub} expert. Generate exactly 1 original MCQ for the ${exam} exam.
+Exam: ${exam}
+Subject: ${sub}
+Topic: ${topic}
+Difficulty: ${diff} — ${DS[diff]||DS.medium}
+Seed: ${seed}
+
+STRICT RULES (all must be followed):
+- Return ONLY valid JSON. No markdown fences. No text before or after the JSON.
+- "correct" must be a single integer: 0, 1, 2, or 3 (0-based index into options array)
+- All 4 options must be DISTINCT, non-empty, and plausible
+- Wrong options must reflect common student mistakes or misconceptions
+- Explanation must:
+  (a) Be ≥ 40 characters
+  (b) NOT copy the question stem
+  (c) NOT reference option letters A/B/C/D — refer by value or text
+  (d) NOT contradict the keyed answer
+  (e) State exactly ONE final answer consistent with the keyed option${calcNote}
+- Use Unicode symbols where needed: π, ², ³, ms⁻¹, √, etc.
+- ${langNote}
+
+Return this exact JSON (nothing else):
+{"question":"...","options":["...","...","...","..."],"correct":${corrEx},"explanation":"...","difficulty":"${diff}","topic":"${topic}"}`;
+}
+
+// ════════════════════════════════════════════
+//  QUESTION PARSER
+// ════════════════════════════════════════════
+function parseQ(raw,exam,sub,topic){
+  let s=raw.trim().replace(/^```(?:json)?[\r\n]*/,'').replace(/[\r\n]*```$/,'').trim();
+  const a=s.indexOf('{'),b=s.lastIndexOf('}');
+  if(a>=0&&b>a) s=s.slice(a,b+1);
+  const q=JSON.parse(s);
+  if(!q.question||typeof q.question!=='string') throw new Error('No question field');
+  if(!Array.isArray(q.options)||q.options.length<4) throw new Error('Bad options array');
+  q.exam=exam; q.subject=sub;
+  q.topic=String(topic||q.topic||'General').trim();
+  q.difficulty=String(q.difficulty||'medium').toLowerCase();
+  q.correct=normalizeCI(q.correct);
+  q.options=q.options.slice(0,4).map(o=>String(o||'').trim()||'Option');
+  q.explanation=String(q.explanation||q.solution||'').trim();
+  delete q.diagram; // diagrams not stored in pre-pop bank
+  return q;
+}
+
+// ════════════════════════════════════════════
+//  LOCAL VERIFICATION  (Layers 1–6)
+// ════════════════════════════════════════════
+function chk1(q){const s=String(q.question||'').trim();if(!s||s.length<20)return{pass:false,msg:'L1: Stem too short ('+s.length+' chars)'};if(/\.\.\.|undefined|null|placeholder|lorem ipsum/i.test(s))return{pass:false,msg:'L1: Placeholder text'};return{pass:true,msg:'L1 OK'};}
+function chk2(q){const o=(q.options||[]).slice(0,4).map(x=>String(x||'').trim().toLowerCase());if(o.length!==4)return{pass:false,msg:'L2: Need 4 options, got '+o.length};if(o.some(x=>!x||x.length<2))return{pass:false,msg:'L2: Empty/short option'};if(new Set(o).size!==4)return{pass:false,msg:'L2: Duplicate options'};return{pass:true,msg:'L2 OK'};}
+function chk3(q){const ci=normalizeCI(q.correct);if(ci<0||ci>3)return{pass:false,msg:'L3: correct='+q.correct+' out of bounds'};return{pass:true,msg:'L3 OK'};}
+function chk4(q){const e=String(q.explanation||'').trim();if(!e||e.length<30)return{pass:false,msg:'L4: Explanation too short ('+e.length+')'};if(e.toLowerCase()===String(q.question||'').trim().toLowerCase())return{pass:false,msg:'L4: Explanation = stem'};return{pass:true,msg:'L4 OK'};}
+function chk5(q){const expl=String(q.explanation||'').toLowerCase();const ci=normalizeCI(q.correct);const m=expl.match(/\b(correct|answer)\s*(option)?\s*(is|=|:|→|-)\s*\(?\s*([abcd])\s*\)?/i);if(m){const letter=(m[4]||'').toUpperCase();const stated=letter.charCodeAt(0)-65;if(stated>=0&&stated<=3&&stated!==ci)return{pass:false,msg:'L5: Explanation says '+letter+' but keyed is '+String.fromCharCode(65+ci)};}return{pass:true,msg:'L5 OK'};}
+function chk6(q,sub){if(!NUMERIC_SUBS.has(String(sub||'').trim()))return{pass:true,msg:'L6 N/A'};if(!document.getElementById('v6').checked)return{pass:true,msg:'L6 skipped'};const ci=normalizeCI(q.correct);const cOpt=String((q.options||[])[ci]||'').toLowerCase();const expl=String(q.explanation||'').toLowerCase();const nm=cOpt.match(/(\d+(?:\.\d+)?)/);if(nm&&nm[1].length>=2&&!expl.includes(nm[1]))return{pass:false,msg:'L6: Value "'+nm[1]+'" missing from explanation'};return{pass:true,msg:'L6 OK'};}
+
+function localVerify(q,sub){
+  const checks=[
+    document.getElementById('v1').checked?chk1(q):{pass:true,msg:'L1 skipped'},
+    document.getElementById('v2').checked?chk2(q):{pass:true,msg:'L2 skipped'},
+    document.getElementById('v3').checked?chk3(q):{pass:true,msg:'L3 skipped'},
+    document.getElementById('v4').checked?chk4(q):{pass:true,msg:'L4 skipped'},
+    document.getElementById('v5').checked?chk5(q):{pass:true,msg:'L5 skipped'},
+    chk6(q,sub),
+  ];
+  return{pass:checks.every(c=>c.pass),failures:checks.filter(c=>!c.pass)};
+}
+
+// ════════════════════════════════════════════
+//  LAYER 7 — AI VERIFIER  (proxy, temp=0)
+// ════════════════════════════════════════════
+async function aiVerify(q,sub){
+  if(!document.getElementById('v7').checked) return{pass:true,msg:'L7 skipped'};
+  const ci=normalizeCI(q.correct);
+  const opts=(q.options||[]).slice(0,4);
+  const prompt=`You are a strict exam answer-key verifier for ${q.exam||'exam'} (subject: ${sub}).
+Independently solve this question and verify the answer key.
+
+Question: ${q.question}
+Options (0-indexed):
+0) ${opts[0]}
+1) ${opts[1]}
+2) ${opts[2]}
+3) ${opts[3]}
+Keyed answer: index ${ci} = "${opts[ci]}"
+Generator explanation: ${q.explanation}
+
+Solve independently. Recompute any calculations from scratch.
+
+Return ONLY this JSON (no other text):
+{"verdict":"PASS","your_index":${ci},"confidence":"high","issue":""}
+
+verdict: "PASS" or "FAIL"
+confidence: "high", "medium", or "low"
+If FAIL, explain the issue. Only return FAIL for HIGH-confidence disagreements. For borderline or uncertain cases, return PASS.`;
+  try{
+    const raw=await callProxy(prompt,220,0);
+    const clean=raw.replace(/```json|```/g,'').trim();
+    const a=clean.indexOf('{'),b=clean.lastIndexOf('}');
+    if(a<0||b<0) return{pass:true,msg:'L7: unparseable response — passed'};
+    const r=JSON.parse(clean.slice(a,b+1));
+    const verdict=String(r.verdict||'PASS').toUpperCase();
+    const conf=String(r.confidence||'medium').toLowerCase();
+    if(verdict==='FAIL'&&conf==='high'){
+      return{pass:false,msg:'L7 FAIL (high-conf): verifier says idx='+normalizeCI(r.your_index)+', not '+ci+'. '+String(r.issue||'').slice(0,100)};
+    }
+    return{pass:true,msg:'L7 OK ('+conf+' confidence)'};
+  }catch(e){
+    return{pass:true,msg:'L7 skipped: '+String(e?.message||'').slice(0,60)};
+  }
+}
+
+// ════════════════════════════════════════════
+//  MAIN GENERATION LOOP
+// ════════════════════════════════════════════
+async function startGen(){
+  const subs=selectedSubs.filter(s=>s);
+  if(!subs.length){alert('Select at least one subject');return;}
+  if(!getToken()){alert('Paste your Supabase access_token in the Connection field first');return;}
+  const exam=document.getElementById('cfg-exam').value;
+  const count=Math.max(1,Math.min(100,Number(document.getElementById('cfg-count').value)));
+  const delay=Math.max(400,Number(document.getElementById('cfg-delay').value));
+  const retries=Math.max(1,Math.min(5,Number(document.getElementById('cfg-retries').value)));
+
+  running=true;stopFlag=false;BATCH=[];
+  document.getElementById('btn-start').disabled=true;
+  document.getElementById('btn-stop').disabled=false;
+  document.getElementById('batch-card').style.display='none';
+  setStatusDot(true,'Running');
+  log('Starting: '+count+' questions for '+exam+' ['+subs.join(', ')+']');
+
+  let done=0;
+  setProgress(0,count);
+  let sessionPass=0,sessionFail=0;
+
+  for(let i=0;i<count;i++){
+    if(stopFlag){log('Stopped by user.','warn');break;}
+    const sub=subs[i%subs.length];
+    const diff=getDiff(i,count);
+    const seed=Math.floor(Math.random()*999983)+1;
+    const topicPool=TP[sub]||TP.Physics;
+    const topic=topicPool[Math.floor(Math.random()*topicPool.length)];
+
+    log('['+( i+1)+'/'+count+'] '+exam+' · '+sub+' · '+diff+' · '+topic);
+
+    let q=null,genErr=null;
+    for(let attempt=0;attempt<retries;attempt++){
+      if(stopFlag) break;
+      try{
+        const raw=await callProxy(makePrompt(exam,sub,topic,diff,seed+attempt*7919),950,NUMERIC_SUBS.has(sub)?0.5:0.78);
+        q=parseQ(raw,exam,sub,topic);
+        genErr=null;break;
+      }catch(e){
+        genErr=e;
+        log('  Attempt '+(attempt+1)+' failed: '+String(e?.message||'').slice(0,100),'warn');
+        if(attempt<retries-1) await sleep(1000*(attempt+1));
+      }
+    }
+
+    if(!q){
+      log('['+( i+1)+'] SKIPPED — generation failed: '+String(genErr?.message||'').slice(0,80),'err');
+      BATCH.push({_skip:true,_reason:String(genErr?.message||'').slice(0,120),exam,subject:sub,difficulty:diff,topic});
+      sessionFail++;stats.fail++;
+      done++;setProgress(done,count);updateStats();
+      continue;
+    }
+
+    // Local L1–L6
+    const local=localVerify(q,sub);
+    if(!local.pass){
+      const reasons=local.failures.map(f=>f.msg).join(' | ');
+      log('['+( i+1)+'] FAIL local — '+reasons,'err');
+      q._ok=false;q._failReason=reasons;
+      BATCH.push(q);sessionFail++;stats.fail++;
+      done++;setProgress(done,count);updateStats();
+      await sleep(delay);continue;
+    }
+    log('  L1–L6: all pass');
+
+    // L7 AI verify
+    const ai=await aiVerify(q,sub);
+    log('  '+(ai.pass?'✓':'✗')+' '+ai.msg,ai.pass?'ok':'err');
+
+    if(!ai.pass){
+      q._ok=false;q._failReason=ai.msg;
+      BATCH.push(q);sessionFail++;stats.fail++;
+    }else{
+      q._ok=true;q._fp=qFP(q);
+      BATCH.push(q);sessionPass++;stats.session++;
+    }
+    done++;setProgress(done,count);updateStats();
+    await sleep(delay);
+  }
+
+  running=false;
+  document.getElementById('btn-start').disabled=false;
+  document.getElementById('btn-stop').disabled=true;
+  setStatusDot(false,stopFlag?'Stopped':'Done — '+sessionPass+' passed');
+  log('Complete: '+sessionPass+' verified, '+sessionFail+' rejected',sessionPass>0?'ok':'warn');
+
+  if(BATCH.length){
+    document.getElementById('batch-card').style.display='block';
+    document.getElementById('batch-summary').textContent=sessionPass+' passed / '+BATCH.length+' total';
+    renderBatch();
+  }
+  updateStats();
+}
+
+function stopGen(){stopFlag=true;}
+
+// ════════════════════════════════════════════
+//  BATCH RENDER
+// ════════════════════════════════════════════
+function renderBatch(){
+  const list=document.getElementById('batch-list');
+  list.innerHTML=BATCH.map((q,i)=>{
+    if(q._skip) return '<div class="q-card"><div class="q-head"><div class="q-idx">#'+(i+1)+'</div><div class="q-stem" style="color:var(--t2)">Skipped — '+esc(q._reason||'')+'</div><span class="bdg bdg-skip">SKIP</span></div></div>';
+    const ci=normalizeCI(q.correct);
+    const opts=(q.options||[]).slice(0,4).map((o,oi)=>'<div class="q-opt'+(oi===ci?' cor':'')+'">'+String.fromCharCode(65+oi)+'. '+esc(String(o||'').slice(0,80))+'</div>').join('');
+    const badge=q._ok?'<span class="bdg bdg-pass">PASS</span>':'<span class="bdg bdg-fail">FAIL</span>';
+    return '<div class="q-card"><div class="q-head"><div class="q-idx">#'+(i+1)+'</div><div class="q-stem">'+esc(String(q.question||'').slice(0,200))+'</div>'+badge+'</div><div class="q-opts">'+opts+'</div><div class="q-meta"><span class="bdg bdg-sub">'+esc(q.exam||'')+'</span><span class="bdg bdg-sub">'+esc(q.subject||'')+'</span><span class="bdg bdg-'+( q.difficulty||'medium')+'">'+esc(q.difficulty||'')+'</span><span class="bdg bdg-topic">'+esc((q.topic||'').slice(0,28))+'</span></div>'+(q._failReason?'<div class="fail-msg">'+esc(q._failReason)+'</div>':'')+'<div class="q-expl">'+esc(String(q.explanation||'').slice(0,180))+'</div></div>';
+  }).join('');
+}
+
+function commitApproved(){
+  const approved=BATCH.filter(q=>q._ok&&!q._skip);
+  let added=0;
+  approved.forEach(q=>{
+    const fp=q._fp||qFP(q);
+    if(!BANK.some(b=>b._fp===fp)){BANK.push({...q,_fp:fp});added++;}
+  });
+  stats.total=BANK.length;stats.pass=BANK.filter(q=>q._ok).length;
+  saveBank();updateStats();
+  log('Saved '+added+' new verified questions to bank.','ok');
+  document.getElementById('batch-card').style.display='none';
+  BATCH=[];
+}
+function discardBatch(){BATCH=[];document.getElementById('batch-card').style.display='none';log('Batch discarded.','warn');}
+
+// ════════════════════════════════════════════
+//  BANK BROWSER
+// ════════════════════════════════════════════
+function renderBank(){
+  const examF=document.getElementById('bk-exam').value;
+  const diffF=document.getElementById('bk-diff').value;
+  let items=BANK;
+  if(examF) items=items.filter(q=>q.exam===examF);
+  if(diffF) items=items.filter(q=>q.difficulty===diffF);
+  const list=document.getElementById('bank-list');
+  if(!items.length){list.innerHTML='<div class="empty">No questions match the filter</div>';return;}
+  list.innerHTML='<div class="q-list">'+items.slice(0,120).map((q,i)=>{
+    const ci=normalizeCI(q.correct);
+    const opts=(q.options||[]).slice(0,4).map((o,oi)=>'<div class="q-opt'+(oi===ci?' cor':'')+'">'+String.fromCharCode(65+oi)+'. '+esc(String(o||'').slice(0,70))+'</div>').join('');
+    const fp=esc(q._fp||'');
+    return '<div class="q-card"><div class="q-head"><div class="q-idx">#'+(i+1)+'</div><div class="q-stem">'+esc(String(q.question||'').slice(0,180))+'</div><span class="bdg bdg-pass">✓</span></div><div class="q-opts">'+opts+'</div><div class="q-meta"><span class="bdg bdg-sub">'+esc(q.exam||'')+'</span><span class="bdg bdg-sub">'+esc(q.subject||'')+'</span><span class="bdg bdg-'+(q.difficulty||'medium')+'">'+esc(q.difficulty||'')+'</span><span class="bdg bdg-topic">'+esc((q.topic||'').slice(0,28))+'</span></div><div class="q-expl">'+esc(String(q.explanation||'').slice(0,150))+'</div><div class="btn-row" style="margin-top:5px"><button class="btn btn-r btn-sm" onclick="removeFromBank(\''+fp+'\')">Remove</button></div></div>';
+  }).join('')+'</div>'+(items.length>120?'<div class="empty" style="padding:.75rem">Showing first 120 of '+items.length+'</div>':'');
+}
+function removeFromBank(fp){
+  BANK=BANK.filter(q=>q._fp!==fp);
+  stats.total=BANK.length;stats.pass=BANK.filter(q=>q._ok).length;
+  saveBank();updateStats();renderBank();
+}
+function clearBank(){
+  if(!confirm('Clear the entire bank? This cannot be undone.')) return;
+  BANK=[];stats={total:0,pass:0,fail:0,session:0};
+  saveBank();updateStats();renderBank();
+}
+function exportBank(){
+  const blob=new Blob([JSON.stringify(BANK,null,2)],{type:'application/json'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');
+  a.href=url;a.download='rankgate_bank_'+Date.now()+'.json';a.click();
+  URL.revokeObjectURL(url);
+}
+
+// ════════════════════════════════════════════
+//  INIT
+// ════════════════════════════════════════════
+loadBank();
+updateStats();
+</script>
+</body>
+</html>

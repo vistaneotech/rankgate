@@ -1,0 +1,18 @@
+-- Example: call your deployed Netlify `bank-cron` from Supabase (requires extensions + secrets).
+-- Supabase: enable `pg_cron` and `pg_net` (project settings) if available on your plan.
+-- Prefer storing URL + secret in Supabase Vault and referencing from cron — do NOT hardcode secrets here.
+--
+-- select cron.schedule(
+--   'question-bank-netlify-daily',
+--   '0 4 * * *',
+--   $$
+--   select net.http_post(
+--     url := 'https://YOUR_SITE.netlify.app/.netlify/functions/bank-cron',
+--     headers := jsonb_build_object(
+--       'Content-Type', 'application/json',
+--       'Authorization', 'Bearer ' || current_setting('app.bank_cron_secret', true)
+--     ),
+--     body := '{"perSubject":2,"verify":1}'::jsonb
+--   ) as request_id;
+--   $$
+-- );
